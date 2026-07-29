@@ -12,6 +12,7 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedLogRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogRepository"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver"/>
 
     <!-- Custom Logger Configuration -->
     <virtualType name="Haerriz\GoogleShoppingFeed\Logger\Handler" type="Magento\Framework\Logger\Handler\Base">

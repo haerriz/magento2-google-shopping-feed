@@ -3,6 +3,7 @@ namespace Haerriz\GoogleShoppingFeed\Model;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
 use Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface;
+use Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Store\Model\StoreManagerInterface;
@@ -22,6 +23,11 @@ class FeedGenerator
      * @var ProductProviderInterface
      */
     protected $productProvider;
+
+    /**
+     * @var ProductTypeResolverInterface
+     */
+    private $productTypeResolver;
 
     /**
      * @var Filesystem
@@ -99,6 +105,7 @@ class FeedGenerator
      */
     public function __construct(
         ProductProviderInterface $productProvider,
+        ProductTypeResolverInterface $productTypeResolver,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager,
         ModifierPool $modifierPool,
@@ -110,6 +117,7 @@ class FeedGenerator
         Sanitizer $sanitizer
     ) {
         $this->productProvider = $productProvider;
+        $this->productTypeResolver = $productTypeResolver;
         $this->filesystem = $filesystem;
         $this->storeManager = $storeManager;
         $this->modifierPool = $modifierPool;
@@ -279,6 +287,7 @@ class FeedGenerator
                 break;
             }
 
+            $this->productTypeResolver->prepare($collection, $profile);
             foreach ($collection as $product) {
                 $lastEntityId = (int)$product->getId();
                 $processed++;
@@ -287,14 +296,16 @@ class FeedGenerator
                     continue;
                 }
 
-                $row = [];
-                foreach ($mapping as $map) {
-                    $value = $this->resolveFeedValue($map, $product, $profile);
-                    $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
-                    $row[] = $value;
+                foreach ($this->productTypeResolver->resolve($product, $profile) as $feedProduct) {
+                    $row = [];
+                    foreach ($mapping as $map) {
+                        $value = $this->resolveFeedValue($map, $feedProduct, $profile);
+                        $value = $this->applyModifier($value, $map['modifier'] ?? '', $feedProduct);
+                        $row[] = $value;
+                    }
+                    $stream->writeCsv($row);
+                    $exported++;
                 }
-                $stream->writeCsv($row);
-                $exported++;
             }
 
             if ($job) {
@@ -379,6 +390,7 @@ class FeedGenerator
                 break;
             }
 
+            $this->productTypeResolver->prepare($collection, $profile);
             foreach ($collection as $product) {
                 $lastEntityId = (int)$product->getId();
                 $processed++;
@@ -387,23 +399,25 @@ class FeedGenerator
                     continue;
                 }
 
-                $xmlItem = "  <item>\n";
-                foreach ($mapping as $map) {
-                    $googleTag = $map['google_attribute'];
-                    if (!preg_match('/^(?:[A-Za-z_][A-Za-z0-9_.-]*:)?[A-Za-z_][A-Za-z0-9_.-]*$/', $googleTag)) {
-                        throw new \InvalidArgumentException('Invalid XML output field name.');
-                    }
-                    $value = $this->resolveFeedValue($map, $product, $profile);
-                    $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
+                foreach ($this->productTypeResolver->resolve($product, $profile) as $feedProduct) {
+                    $xmlItem = "  <item>\n";
+                    foreach ($mapping as $map) {
+                        $googleTag = $map['google_attribute'];
+                        if (!preg_match('/^(?:[A-Za-z_][A-Za-z0-9_.-]*:)?[A-Za-z_][A-Za-z0-9_.-]*$/', $googleTag)) {
+                            throw new \InvalidArgumentException('Invalid XML output field name.');
+                        }
+                        $value = $this->resolveFeedValue($map, $feedProduct, $profile);
+                        $value = $this->applyModifier($value, $map['modifier'] ?? '', $feedProduct);
 
-                    if ($value !== null && $value !== '') {
-                        $safeValue = str_replace(']]>', ']]]]><![CDATA[>', (string)$value);
-                        $xmlItem .= "    <{$googleTag}><![CDATA[{$safeValue}]]></{$googleTag}>\n";
+                        if ($value !== null && $value !== '') {
+                            $safeValue = str_replace(']]>', ']]]]><![CDATA[>', (string)$value);
+                            $xmlItem .= "    <{$googleTag}><![CDATA[{$safeValue}]]></{$googleTag}>\n";
+                        }
                     }
+                    $xmlItem .= "  </item>\n";
+                    $stream->write($xmlItem);
+                    $exported++;
                 }
-                $xmlItem .= "  </item>\n";
-                $stream->write($xmlItem);
-                $exported++;
             }
 
             if ($job) {
@@ -444,6 +458,17 @@ class FeedGenerator
         $magentoAttribute = $map['magento_attribute'] ?? '';
 
         switch ($googleAttribute) {
+            case 'g:id':
+            case 'id':
+                if ($product->getData('_feed_parent_sku')) {
+                    return $product->getData('_feed_parent_sku') . '-' . $product->getSku();
+                }
+                return $product->getSku();
+
+            case 'g:item_group_id':
+            case 'item_group_id':
+                return $product->getData('_feed_item_group_id');
+
             case 'g:link':
             case 'link':
                 return $this->utmBuilder->buildUrl($product->getProductUrl(), $profile, $product);
