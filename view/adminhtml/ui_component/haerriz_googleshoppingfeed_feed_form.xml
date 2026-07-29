@@ -134,10 +134,20 @@
             </argument>
         </field>
     </fieldset>
+    <fieldset name="conditions">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">2. Product Filtering Conditions</item>
+            </item>
+        </argument>
+        <htmlContent name="html_content">
+            <argument name="block" xsi:type="object">Haerriz\GoogleShoppingFeed\Block\Adminhtml\Feed\Edit\Tab\Conditions</argument>
+        </htmlContent>
+    </fieldset>
     <fieldset name="mapping">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
-                <item name="label" xsi:type="string" translate="true">2. Attribute Mapping</item>
+                <item name="label" xsi:type="string" translate="true">3. Attribute Mapping</item>
             </item>
         </argument>
         <!-- Enterprise Feature: Dynamic Rows for Attribute Mapping -->
@@ -202,7 +212,7 @@
     <fieldset name="delivery">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
-                <item name="label" xsi:type="string" translate="true">3. Delivery &amp; Upload Configuration</item>
+                <item name="label" xsi:type="string" translate="true">4. Delivery &amp; Upload Configuration</item>
             </item>
         </argument>
         <field name="delivery_type">

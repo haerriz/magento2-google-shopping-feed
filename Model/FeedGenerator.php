@@ -10,6 +10,8 @@ use Haerriz\GoogleShoppingFeed\Model\Modifier\Pool as ModifierPool;
 
 use Haerriz\GoogleShoppingFeed\Model\Storage\AdapterPool;
 
+use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
+
 class FeedGenerator
 {
     const BATCH_SIZE = 500;
@@ -40,24 +42,32 @@ class FeedGenerator
     protected $adapterPool;
 
     /**
+     * @var RuleFactory
+     */
+    protected $ruleFactory;
+
+    /**
      * @param ProductCollectionFactory $productCollectionFactory
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
      * @param ModifierPool $modifierPool
      * @param AdapterPool $adapterPool
+     * @param RuleFactory $ruleFactory
      */
     public function __construct(
         ProductCollectionFactory $productCollectionFactory,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager,
         ModifierPool $modifierPool,
-        AdapterPool $adapterPool
+        AdapterPool $adapterPool,
+        RuleFactory $ruleFactory
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->filesystem = $filesystem;
         $this->storeManager = $storeManager;
         $this->modifierPool = $modifierPool;
         $this->adapterPool = $adapterPool;
+        $this->ruleFactory = $ruleFactory;
     }
 
     /**
@@ -96,13 +106,18 @@ class FeedGenerator
      * @param int $storeId
      * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
-    protected function getProductCollection($storeId)
+    protected function getProductCollection($storeId, $rule = null)
     {
         $collection = $this->productCollectionFactory->create();
         $collection->addAttributeToSelect('*');
         $collection->addStoreFilter($storeId);
         $collection->addAttributeToFilter('status', \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
         $collection->addAttributeToFilter('visibility', ['neq' => \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE]);
+        
+        if ($rule) {
+            $rule->getConditions()->collectValidatedAttributes($collection);
+        }
+        
         return $collection;
     }
 
@@ -128,12 +143,23 @@ class FeedGenerator
         }
         $stream->writeCsv($headers);
 
+        // Load rules if set
+        $rule = null;
+        $serializedConditions = $profile->getConditionsSerialized();
+        if ($serializedConditions) {
+            $conditions = json_decode($serializedConditions, true);
+            if (!empty($conditions)) {
+                $rule = $this->ruleFactory->create();
+                $rule->getConditions()->loadArray($conditions);
+            }
+        }
+
         // Paginate and process products
         $page = 1;
         $storeId = $profile->getStoreId();
         
         while (true) {
-            $collection = $this->getProductCollection($storeId);
+            $collection = $this->getProductCollection($storeId, $rule);
             $collection->setPage($page, self::BATCH_SIZE);
             
             if ($collection->count() === 0) {
@@ -141,6 +167,10 @@ class FeedGenerator
             }
 
             foreach ($collection as $product) {
+                if ($rule && !$rule->getConditions()->validate($product)) {
+                    continue;
+                }
+
                 $row = [];
                 foreach ($mapping as $map) {
                     $value = $product->getData($map['magento_attribute']);
@@ -181,11 +211,23 @@ class FeedGenerator
         $stream->write($xmlHeader);
 
         $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
+        
+        // Load rules if set
+        $rule = null;
+        $serializedConditions = $profile->getConditionsSerialized();
+        if ($serializedConditions) {
+            $conditions = json_decode($serializedConditions, true);
+            if (!empty($conditions)) {
+                $rule = $this->ruleFactory->create();
+                $rule->getConditions()->loadArray($conditions);
+            }
+        }
+
         $page = 1;
         $storeId = $profile->getStoreId();
 
         while (true) {
-            $collection = $this->getProductCollection($storeId);
+            $collection = $this->getProductCollection($storeId, $rule);
             $collection->setPage($page, self::BATCH_SIZE);
 
             if ($collection->count() === 0) {
@@ -193,6 +235,10 @@ class FeedGenerator
             }
 
             foreach ($collection as $product) {
+                if ($rule && !$rule->getConditions()->validate($product)) {
+                    continue;
+                }
+
                 $xmlItem = "  <item>\n";
                 foreach ($mapping as $map) {
                     $googleTag = $map['google_attribute'];

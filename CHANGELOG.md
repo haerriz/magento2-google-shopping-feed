@@ -24,6 +24,11 @@ All notable changes to this project will be documented in this file.
 - **Phase 4**: Implemented dynamic delivery field toggling in Admin Feed Edit UI.
 - **Phase 4**: Created modular delivery storage system with `Local`, `Ftp`, and `Sftp` storage adapters and `AdapterPool`.
 - **Phase 4**: Leveraged Magento's native `Ftp`/`Sftp` filesystem utilities for reliable file uploading.
+- **Phase 5**: Integrated standard Magento Rule models (`Magento\Rule\Model\AbstractModel`) to support recursive catalog rules.
+- **Phase 5**: Created custom admin UI conditions block `Tab\Conditions` to load standard Magento rule selection UI templates.
+- **Phase 5**: Added AJAX conditions controller (`Controller/Adminhtml/Feed/Conditions`) to dynamically fetch condition lists.
+- **Phase 5**: Wired conditions saving/serialization inside Save controller.
+- **Phase 5**: Hooked rule validations directly into paginated product collections during CSV/XML feed generations.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.

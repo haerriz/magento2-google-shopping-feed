@@ -8,6 +8,8 @@ use Haerriz\GoogleShoppingFeed\Model\FeedProfileFactory;
 
 use Magento\Framework\Encryption\EncryptorInterface;
 
+use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
+
 class Save extends Action
 {
     const ADMIN_RESOURCE = 'Haerriz_GoogleShoppingFeed::feed_profiles';
@@ -15,17 +17,20 @@ class Save extends Action
     protected $repository;
     protected $factory;
     protected $encryptor;
+    protected $ruleFactory;
 
     public function __construct(
         Context $context,
         FeedProfileRepositoryInterface $repository,
         FeedProfileFactory $factory,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        RuleFactory $ruleFactory
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->factory = $factory;
         $this->encryptor = $encryptor;
+        $this->ruleFactory = $ruleFactory;
     }
 
     public function execute()
@@ -52,6 +57,13 @@ class Save extends Action
                     $data['attributes_mapping_serialized'] = json_encode($data['attributes_mapping']);
                 } else {
                     $data['attributes_mapping_serialized'] = null;
+                }
+
+                // Process standard Magento rules data
+                if (isset($data['rule'])) {
+                    $ruleModel = $this->ruleFactory->create();
+                    $ruleModel->loadPost($data['rule']);
+                    $data['conditions_serialized'] = json_encode($ruleModel->getConditions()->asArray());
                 }
                 
                 if (isset($data['name'])) $model->setName($data['name']);
