@@ -61,7 +61,8 @@ class Ftp implements AdapterInterface
                 'port' => $profile->getDeliveryPort() ?: 21,
                 'user' => $profile->getDeliveryUsername(),
                 'password' => $decryptedPassword,
-                'pasv' => true
+                'passive' => (bool)$profile->getData('ftp_passive'),
+                'timeout' => max(1, (int)$profile->getData('delivery_timeout'))
             ];
 
             if (!$this->ftpIo->open($config)) {
@@ -73,8 +74,12 @@ class Ftp implements AdapterInterface
                 $this->ftpIo->cd($remoteDir);
             }
 
-            $filename = basename($localFilePath);
-            $result = $this->ftpIo->write($filename, $absoluteLocalPath);
+            $filename = basename((string)($profile->getData('remote_filename') ?: $localFilePath));
+            $temporary = '.' . $filename . '.' . bin2hex(random_bytes(8)) . '.tmp';
+            $result = $this->ftpIo->write($temporary, $absoluteLocalPath);
+            if ($result) {
+                $result = $this->ftpIo->mv($temporary, $filename);
+            }
 
             $this->ftpIo->close();
 

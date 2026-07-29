@@ -22,6 +22,9 @@ class Scheduler
         $now->setTimezone($timezone);
 
         switch ($frequency) {
+            case 'manual':
+                return null;
+
             case 'hourly':
                 $now->modify('+1 hour');
                 $now->setTime((int)$now->format('H'), 0, 0); // start of next hour
@@ -43,14 +46,11 @@ class Scheduler
                 break;
 
             case 'custom':
-            default:
-                if (!empty($cronExpr)) {
-                    $nextTime = $this->calculateCustomCron($cronExpr, $now->getTimestamp());
-                    $now->setTimestamp($nextTime);
-                } else {
-                    $now->modify('+1 day'); // fallback
-                }
+                $now = $this->calculateCustomCron($cronExpr, $now);
                 break;
+
+            default:
+                throw new \InvalidArgumentException('Unsupported schedule frequency.');
         }
 
         $now->setTimezone(new DateTimeZone('UTC'));
@@ -64,34 +64,32 @@ class Scheduler
      * @param int $currentTimestamp
      * @return int
      */
-    protected function calculateCustomCron($expr, $currentTimestamp)
+    protected function calculateCustomCron($expr, DateTime $current)
     {
-        // For basic custom expressions, match standard simple cron syntax, or calculate minimum step
-        // To be lightweight and robust, let's step minute-by-minute up to a threshold (e.g. 1 year) to find match
         $parts = explode(' ', preg_replace('/\s+/', ' ', trim($expr)));
-        if (count($parts) < 5) {
-            return $currentTimestamp + 86400; // fallback daily increment
+        if (count($parts) !== 5) {
+            throw new \InvalidArgumentException('Cron expression must contain exactly five fields.');
         }
 
         list($min, $hour, $day, $month, $wday) = $parts;
-        $time = $currentTimestamp;
-        $maxIterations = 525600; // Max minutes in a year to prevent infinite loops
-
-        for ($i = 0; $i < $maxIterations; $i++) {
-            $time += 60; // increment minute
-            $d = getdate($time);
-
-            if ($this->matchCronPart($min, $d['minutes']) &&
-                $this->matchCronPart($hour, $d['hours']) &&
-                $this->matchCronPart($day, $d['mday']) &&
-                $this->matchCronPart($month, $d['mon']) &&
-                $this->matchCronPart($wday, $d['wday'])
+        foreach ([[$min, 0, 59], [$hour, 0, 23], [$day, 1, 31], [$month, 1, 12], [$wday, 0, 7]] as $field) {
+            $this->validateCronPart($field[0], $field[1], $field[2]);
+        }
+        $candidate = clone $current;
+        $candidate->setTime((int)$candidate->format('H'), (int)$candidate->format('i'), 0);
+        for ($i = 0; $i < 527040; $i++) {
+            $candidate->modify('+1 minute');
+            if ($this->matchCronPart($min, (int)$candidate->format('i')) &&
+                $this->matchCronPart($hour, (int)$candidate->format('G')) &&
+                $this->matchCronPart($day, (int)$candidate->format('j')) &&
+                $this->matchCronPart($month, (int)$candidate->format('n')) &&
+                $this->matchCronPart($wday, (int)$candidate->format('w'))
             ) {
-                return $time;
+                return $candidate;
             }
         }
 
-        return $currentTimestamp + 86400;
+        throw new \InvalidArgumentException('Cron expression has no run time in the next year.');
     }
 
     /**
@@ -106,7 +104,7 @@ class Scheduler
         // Match lists (e.g. 1,2,5)
         if (strpos($part, ',') !== false) {
             $items = explode(',', $part);
-            return in_array($value, $items);
+            return in_array((string)$value, $items, true);
         }
 
         // Match intervals (e.g. */5)
@@ -117,5 +115,23 @@ class Scheduler
 
         // Exact match
         return (int)$part === (int)$value;
+    }
+
+    private function validateCronPart($part, $minimum, $maximum)
+    {
+        foreach (explode(',', $part) as $item) {
+            if ($item === '*') {
+                continue;
+            }
+            if (preg_match('/^\*\/(\d+)$/', $item, $match)) {
+                if ((int)$match[1] < 1) {
+                    throw new \InvalidArgumentException('Cron step must be greater than zero.');
+                }
+                continue;
+            }
+            if (!ctype_digit($item) || (int)$item < $minimum || (int)$item > $maximum) {
+                throw new \InvalidArgumentException('Cron expression contains an out-of-range value.');
+            }
+        }
     }
 }

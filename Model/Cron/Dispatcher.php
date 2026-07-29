@@ -7,6 +7,7 @@ use Haerriz\GoogleShoppingFeed\Model\FeedGenerator;
 use Haerriz\GoogleShoppingFeed\Model\Cron\Scheduler;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Lock\LockManagerInterface;
 
 class Dispatcher
 {
@@ -40,6 +41,8 @@ class Dispatcher
      */
     protected $date;
 
+    private $lockManager;
+
     /**
      * @param CollectionFactory $collectionFactory
      * @param FeedProfileRepositoryInterface $repository
@@ -54,7 +57,8 @@ class Dispatcher
         FeedGenerator $generator,
         Scheduler $scheduler,
         LoggerInterface $logger,
-        DateTime $date
+        DateTime $date,
+        LockManagerInterface $lockManager
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->repository = $repository;
@@ -62,6 +66,7 @@ class Dispatcher
         $this->scheduler = $scheduler;
         $this->logger = $logger;
         $this->date = $date;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -117,15 +122,18 @@ class Dispatcher
     protected function runProfileJob($profile)
     {
         $nowUtc = $this->date->gmtDate();
-
-        // Lock profile
-        $profile->setIsLocked(1);
-        $profile->setLockedAt($nowUtc);
-        $this->repository->save($profile);
+        $lockName = 'haerriz_google_feed_profile_' . (int)$profile->getId();
+        if (!$this->lockManager->lock($lockName, 0)) {
+            $this->logger->info(sprintf('Profile %s already has an active process.', $profile->getId()));
+            return;
+        }
 
         try {
+            $profile->setIsLocked(1);
+            $profile->setLockedAt($nowUtc);
+            $this->repository->save($profile);
             $startTime = microtime(true);
-            $success = $this->generator->generate($profile);
+            $success = $this->generator->generate($profile, 'cron');
             $duration = round(microtime(true) - $startTime, 2);
 
             if ($success) {
@@ -150,6 +158,14 @@ class Dispatcher
         } catch (\Exception $e) {
             $this->logger->error(sprintf("Profile %s failed: %s", $profile->getId(), $e->getMessage()));
             $this->handleFailure($profile);
+        } finally {
+            try {
+                $profile->setIsLocked(0);
+                $profile->setLockedAt(null);
+                $this->repository->save($profile);
+            } finally {
+                $this->lockManager->unlock($lockName);
+            }
         }
     }
 

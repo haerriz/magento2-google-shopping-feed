@@ -57,11 +57,10 @@ class Sftp implements AdapterInterface
             $decryptedPassword = $password ? $this->encryptor->decrypt($password) : '';
 
             $config = [
-                'host' => $profile->getDeliveryHost(),
-                'port' => $profile->getDeliveryPort() ?: 22,
+                'host' => $profile->getDeliveryHost() . ':' . ($profile->getDeliveryPort() ?: 22),
                 'username' => $profile->getDeliveryUsername(),
                 'password' => $decryptedPassword,
-                'timeout' => 20
+                'timeout' => max(1, (int)$profile->getData('delivery_timeout'))
             ];
 
             $this->sftpIo->open($config);
@@ -71,10 +70,12 @@ class Sftp implements AdapterInterface
                 $this->sftpIo->cd($remoteDir);
             }
 
-            $filename = basename($localFilePath);
-            // Magento SFTP Io write takes ($filename, $source, $dest = null) but wait,
-            // SftpIo has write($filename, $source) or similar.
-            $result = $this->sftpIo->write($filename, $absoluteLocalPath);
+            $filename = basename((string)($profile->getData('remote_filename') ?: $localFilePath));
+            $temporary = '.' . $filename . '.' . bin2hex(random_bytes(8)) . '.tmp';
+            $result = $this->sftpIo->write($temporary, $absoluteLocalPath);
+            if ($result) {
+                $result = $this->sftpIo->mv($temporary, $filename);
+            }
 
             $this->sftpIo->close();
 
