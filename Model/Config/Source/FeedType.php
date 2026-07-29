@@ -9,7 +9,10 @@ class FeedType implements OptionSourceInterface
     {
         return [
             ['value' => 'xml', 'label' => __('XML')],
-            ['value' => 'csv', 'label' => __('CSV')]
+            ['value' => 'csv', 'label' => __('CSV')],
+            ['value' => 'txt', 'label' => __('TXT')],
+            ['value' => 'tsv', 'label' => __('TSV')],
+            ['value' => 'jsonl', 'label' => __('JSON Lines')]
         ];
     }
 }

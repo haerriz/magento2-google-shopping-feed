@@ -13,6 +13,27 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline"/>
+
+    <virtualType name="Haerriz\GoogleShoppingFeed\Model\Writer\Csv" type="Haerriz\GoogleShoppingFeed\Model\Writer\Delimited"/>
+    <virtualType name="Haerriz\GoogleShoppingFeed\Model\Writer\Txt" type="Haerriz\GoogleShoppingFeed\Model\Writer\Delimited"/>
+    <virtualType name="Haerriz\GoogleShoppingFeed\Model\Writer\Tsv" type="Haerriz\GoogleShoppingFeed\Model\Writer\Delimited">
+        <arguments>
+            <argument name="fixedDelimiter" xsi:type="string">&#9;</argument>
+        </arguments>
+    </virtualType>
+    <type name="Haerriz\GoogleShoppingFeed\Model\Writer\Pool">
+        <arguments>
+            <argument name="writers" xsi:type="array">
+                <item name="xml" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml</item>
+                <item name="csv" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Csv</item>
+                <item name="txt" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Txt</item>
+                <item name="tsv" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Tsv</item>
+                <item name="jsonl" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\JsonLines</item>
+            </argument>
+        </arguments>
+    </type>
 
     <!-- Custom Logger Configuration -->
     <virtualType name="Haerriz\GoogleShoppingFeed\Logger\Handler" type="Magento\Framework\Logger\Handler\Base">

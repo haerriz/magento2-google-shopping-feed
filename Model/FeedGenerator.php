@@ -93,6 +93,11 @@ class FeedGenerator
     private $sanitizer;
 
     /**
+     * @var FeedExporter
+     */
+    private $feedExporter;
+
+    /**
      * @param ProductCollectionFactory $productCollectionFactory
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
@@ -114,7 +119,8 @@ class FeedGenerator
         FeedJobFactory $jobFactory,
         JobResource $jobResource,
         \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder,
-        Sanitizer $sanitizer
+        Sanitizer $sanitizer,
+        FeedExporter $feedExporter
     ) {
         $this->productProvider = $productProvider;
         $this->productTypeResolver = $productTypeResolver;
@@ -127,6 +133,7 @@ class FeedGenerator
         $this->jobResource = $jobResource;
         $this->utmBuilder = $utmBuilder;
         $this->sanitizer = $sanitizer;
+        $this->feedExporter = $feedExporter;
     }
 
     public function generate(FeedProfileInterface $profile, $triggerSource = 'cron')
@@ -154,13 +161,7 @@ class FeedGenerator
         $this->jobResource->save($job);
 
         try {
-            if ($type === 'csv') {
-                $this->generateCsv($profile, $temporaryPath, $job);
-            } elseif ($type === 'xml') {
-                $this->generateXml($profile, $temporaryPath, $job);
-            } else {
-                throw new \InvalidArgumentException('Unsupported feed format.');
-            }
+            $this->feedExporter->export($profile, $temporaryPath, $job);
 
             $directory->renameFile($temporaryPath, $localPath);
             $generated = true;

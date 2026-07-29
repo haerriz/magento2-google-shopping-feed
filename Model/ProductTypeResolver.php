@@ -122,6 +122,7 @@ class ProductTypeResolver implements ProductTypeResolverInterface
             $child->setData('_feed_parent_id', (int)$product->getId());
             $child->setData('_feed_parent_sku', (string)$product->getSku());
             $child->setData('_feed_item_group_id', (string)$product->getSku());
+            $child->setData('_feed_parent_product', $product);
         }
 
         if (in_array($strategy, ['variants', 'children'], true)) {
