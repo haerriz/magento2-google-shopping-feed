@@ -39,6 +39,11 @@ class DataProvider extends AbstractDataProvider
             if (!empty($data['conditions_serialized'])) {
                 $data['conditions'] = json_decode($data['conditions_serialized'], true);
             }
+            foreach (['include_category_ids', 'exclude_category_ids'] as $listField) {
+                $data[$listField] = $data[$listField] === null || $data[$listField] === ''
+                    ? []
+                    : array_values(array_filter(array_map('intval', explode(',', $data[$listField]))));
+            }
             
             $this->loadedData[$model->getId()] = $data;
         }

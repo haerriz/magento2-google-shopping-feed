@@ -9,6 +9,8 @@ use Haerriz\GoogleShoppingFeed\Model\FeedProfileFactory;
 
 use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
 use Haerriz\GoogleShoppingFeed\Model\Logger\Sanitizer;
+use Haerriz\GoogleShoppingFeed\Model\Cron\Scheduler;
+use Haerriz\GoogleShoppingFeed\Model\ProfileValidator;
 
 class Save extends Action
 {
@@ -19,6 +21,8 @@ class Save extends Action
     protected $credentialProvider;
     protected $ruleFactory;
     protected $sanitizer;
+    private $scheduler;
+    private $profileValidator;
 
     public function __construct(
         Context $context,
@@ -26,7 +30,9 @@ class Save extends Action
         FeedProfileFactory $factory,
         CredentialProviderInterface $credentialProvider,
         RuleFactory $ruleFactory,
-        Sanitizer $sanitizer
+        Sanitizer $sanitizer,
+        Scheduler $scheduler,
+        ProfileValidator $profileValidator
     ) {
         parent::__construct($context);
         $this->repository = $repository;
@@ -34,6 +40,8 @@ class Save extends Action
         $this->credentialProvider = $credentialProvider;
         $this->ruleFactory = $ruleFactory;
         $this->sanitizer = $sanitizer;
+        $this->scheduler = $scheduler;
+        $this->profileValidator = $profileValidator;
     }
 
     public function execute()
@@ -54,6 +62,11 @@ class Save extends Action
                     ) {
                         throw new \Exception('Invalid filename extension.');
                     }
+                    if (isset($data['feed_type'])
+                        && strtolower(pathinfo($filename, PATHINFO_EXTENSION)) !== strtolower($data['feed_type'])
+                    ) {
+                        throw new \Exception('Filename extension must match the selected feed format.');
+                    }
                     $data['filename'] = $filename;
                 }
 
@@ -62,6 +75,12 @@ class Save extends Action
                     $data['attributes_mapping_serialized'] = json_encode($data['attributes_mapping']);
                 } else {
                     $data['attributes_mapping_serialized'] = null;
+                }
+
+                foreach (['include_category_ids', 'exclude_category_ids', 'visibility_values'] as $listField) {
+                    if (isset($data[$listField]) && is_array($data[$listField])) {
+                        $data[$listField] = implode(',', array_values(array_unique(array_map('intval', $data[$listField]))));
+                    }
                 }
 
                 // Process standard Magento rules data
@@ -143,6 +162,14 @@ class Save extends Action
                 
                 $model->setAttributesMappingSerialized($data['attributes_mapping_serialized'] ?? null);
                 $model->setConditionsSerialized($data['conditions_serialized'] ?? null);
+                $model->setData('next_run_at', $this->scheduler->calculateNextRun(
+                    $model->getData('frequency') ?: 'manual',
+                    $model->getData('cron_expression'),
+                    $model->getData('timezone') ?: 'UTC'
+                ));
+                if ((int)$model->getStatus() === 1) {
+                    $this->profileValidator->assertValid($model);
+                }
                 $this->repository->save($model);
                 
                 $this->messageManager->addSuccessMessage(__('You saved the feed profile.'));

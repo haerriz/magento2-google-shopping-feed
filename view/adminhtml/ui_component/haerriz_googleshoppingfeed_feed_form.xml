@@ -133,6 +133,65 @@
                 </item>
             </argument>
         </field>
+        <field name="locale">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Magento\Config\Model\Config\Source\Locale</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Locale</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="source" xsi:type="string">profile</item>
+                    <item name="validation" xsi:type="array"><item name="required-entry" xsi:type="boolean">true</item></item>
+                </item>
+            </argument>
+        </field>
+        <field name="target_country">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Magento\Directory\Model\Config\Source\Country</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Target Country</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="source" xsi:type="string">profile</item>
+                    <item name="validation" xsi:type="array"><item name="required-entry" xsi:type="boolean">true</item></item>
+                </item>
+            </argument>
+        </field>
+        <field name="content_language">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Content Language</item>
+                <item name="notice" xsi:type="string" translate="true">ISO language code, for example en or en-GB.</item>
+                <item name="formElement" xsi:type="string">input</item><item name="dataType" xsi:type="string">text</item>
+                <item name="source" xsi:type="string">profile</item>
+                <item name="validation" xsi:type="array"><item name="required-entry" xsi:type="boolean">true</item></item>
+            </item></argument>
+        </field>
+        <field name="channel">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Channel / Template</item>
+                <item name="formElement" xsi:type="string">input</item><item name="dataType" xsi:type="string">text</item>
+                <item name="source" xsi:type="string">profile</item><item name="disabled" xsi:type="boolean">true</item>
+            </item></argument>
+        </field>
+        <field name="template_version">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Pinned Template Version</item>
+                <item name="formElement" xsi:type="string">input</item><item name="dataType" xsi:type="string">text</item>
+                <item name="source" xsi:type="string">profile</item><item name="validation" xsi:type="array"><item name="required-entry" xsi:type="boolean">true</item></item>
+            </item></argument>
+        </field>
+        <field name="delimiter">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Delimiter</item><item name="formElement" xsi:type="string">input</item>
+                <item name="dataType" xsi:type="string">text</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
+        <field name="enclosure">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Enclosure</item><item name="formElement" xsi:type="string">input</item>
+                <item name="dataType" xsi:type="string">text</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
     </fieldset>
     <fieldset name="conditions">
         <argument name="data" xsi:type="array">
@@ -140,6 +199,92 @@
                 <item name="label" xsi:type="string" translate="true">2. Product Filtering Conditions</item>
             </item>
         </argument>
+        <field name="include_category_ids" formElement="multiselect">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\Category</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Include Categories</item>
+                    <item name="source" xsi:type="string">profile</item>
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="chipsEnabled" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+        </field>
+        <field name="exclude_category_ids" formElement="multiselect">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\Category</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Exclude Categories</item>
+                    <item name="source" xsi:type="string">profile</item>
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="chipsEnabled" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+        </field>
+        <field name="include_category_descendants" formElement="checkbox">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Include Descendant Categories</item>
+                <item name="source" xsi:type="string">profile</item><item name="prefer" xsi:type="string">toggle</item>
+                <item name="valueMap" xsi:type="array"><item name="false" xsi:type="number">0</item><item name="true" xsi:type="number">1</item></item>
+            </item></argument>
+        </field>
+        <field name="include_disabled" formElement="checkbox">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Include Disabled Products</item>
+                <item name="source" xsi:type="string">profile</item><item name="prefer" xsi:type="string">toggle</item>
+                <item name="valueMap" xsi:type="array"><item name="false" xsi:type="number">0</item><item name="true" xsi:type="number">1</item></item>
+            </item></argument>
+        </field>
+        <field name="visibility_values">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Visibility Values</item>
+                <item name="notice" xsi:type="string" translate="true">Comma-separated Magento visibility IDs (1–4).</item>
+                <item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
+        <field name="stock_policy" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="array">
+                    <item name="in_stock" xsi:type="array"><item name="value" xsi:type="string">in_stock</item><item name="label" xsi:type="string" translate="true">In stock only</item></item>
+                    <item name="out_of_stock" xsi:type="array"><item name="value" xsi:type="string">out_of_stock</item><item name="label" xsi:type="string" translate="true">Out of stock only</item></item>
+                    <item name="all" xsi:type="array"><item name="value" xsi:type="string">all</item><item name="label" xsi:type="string" translate="true">All stock states</item></item>
+                </item>
+                <item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Stock Eligibility</item><item name="source" xsi:type="string">profile</item></item>
+            </argument>
+        </field>
+        <field name="configurable_strategy" formElement="select">
+            <argument name="data" xsi:type="array"><item name="options" xsi:type="array">
+                <item name="parent" xsi:type="array"><item name="value" xsi:type="string">parent</item><item name="label" xsi:type="string" translate="true">Parent only</item></item>
+                <item name="variants" xsi:type="array"><item name="value" xsi:type="string">variants</item><item name="label" xsi:type="string" translate="true">Salable variants</item></item>
+                <item name="both" xsi:type="array"><item name="value" xsi:type="string">both</item><item name="label" xsi:type="string" translate="true">Parent and variants</item></item>
+            </item><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Configurable Products</item><item name="source" xsi:type="string">profile</item></item></argument>
+        </field>
+        <field name="bundle_strategy" formElement="select">
+            <argument name="data" xsi:type="array"><item name="options" xsi:type="array">
+                <item name="parent" xsi:type="array"><item name="value" xsi:type="string">parent</item><item name="label" xsi:type="string" translate="true">Parent only</item></item>
+                <item name="children" xsi:type="array"><item name="value" xsi:type="string">children</item><item name="label" xsi:type="string" translate="true">Children only</item></item>
+                <item name="both" xsi:type="array"><item name="value" xsi:type="string">both</item><item name="label" xsi:type="string" translate="true">Parent and children</item></item>
+            </item><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Bundle Products</item><item name="source" xsi:type="string">profile</item></item></argument>
+        </field>
+        <field name="grouped_strategy" formElement="select">
+            <argument name="data" xsi:type="array"><item name="options" xsi:type="array">
+                <item name="parent" xsi:type="array"><item name="value" xsi:type="string">parent</item><item name="label" xsi:type="string" translate="true">Parent only</item></item>
+                <item name="children" xsi:type="array"><item name="value" xsi:type="string">children</item><item name="label" xsi:type="string" translate="true">Children only</item></item>
+                <item name="both" xsi:type="array"><item name="value" xsi:type="string">both</item><item name="label" xsi:type="string" translate="true">Parent and children</item></item>
+            </item><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Grouped Products</item><item name="source" xsi:type="string">profile</item></item></argument>
+        </field>
+        <field name="include_virtual" formElement="checkbox">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Include Virtual Products</item><item name="source" xsi:type="string">profile</item>
+                <item name="prefer" xsi:type="string">toggle</item><item name="valueMap" xsi:type="array"><item name="false" xsi:type="number">0</item><item name="true" xsi:type="number">1</item></item>
+            </item></argument>
+        </field>
+        <field name="include_downloadable" formElement="checkbox">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Include Downloadable Products</item><item name="source" xsi:type="string">profile</item>
+                <item name="prefer" xsi:type="string">toggle</item><item name="valueMap" xsi:type="array"><item name="false" xsi:type="number">0</item><item name="true" xsi:type="number">1</item></item>
+            </item></argument>
+        </field>
         <htmlContent name="html_content">
             <argument name="block" xsi:type="object">Haerriz\GoogleShoppingFeed\Block\Adminhtml\Feed\Edit\Tab\Conditions</argument>
         </htmlContent>
@@ -179,16 +324,25 @@
                 </field>
                 <field name="magento_attribute">
                     <argument name="data" xsi:type="array">
+                        <item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\ProductAttribute</item>
                         <item name="config" xsi:type="array">
                             <item name="dataType" xsi:type="string">text</item>
-                            <item name="formElement" xsi:type="string">input</item>
+                            <item name="formElement" xsi:type="string">select</item>
                             <item name="label" xsi:type="string" translate="true">Magento Attribute</item>
                             <item name="dataScope" xsi:type="string">magento_attribute</item>
+                            <item name="filterOptions" xsi:type="boolean">true</item>
                         </item>
                     </argument>
                 </field>
+                <field name="default_value">
+                    <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                        <item name="dataType" xsi:type="string">text</item><item name="formElement" xsi:type="string">input</item>
+                        <item name="label" xsi:type="string" translate="true">Fallback / Default</item><item name="dataScope" xsi:type="string">default_value</item>
+                    </item></argument>
+                </field>
                 <field name="modifier">
                     <argument name="data" xsi:type="array">
+                        <item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\Modifier</item>
                         <item name="config" xsi:type="array">
                             <item name="dataType" xsi:type="string">text</item>
                             <item name="formElement" xsi:type="string">select</item>
@@ -209,12 +363,52 @@
             </container>
         </dynamicRows>
     </fieldset>
+    <fieldset name="transformations">
+        <argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">4. Optional Details and Transformations</item></item></argument>
+        <field name="utm_enabled" formElement="checkbox">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Enable UTM Tracking</item><item name="source" xsi:type="string">profile</item>
+                <item name="prefer" xsi:type="string">toggle</item><item name="valueMap" xsi:type="array"><item name="false" xsi:type="number">0</item><item name="true" xsi:type="number">1</item></item>
+            </item></argument>
+        </field>
+        <field name="utm_source"><argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">UTM Source</item><item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item></item></argument></field>
+        <field name="utm_medium"><argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">UTM Medium</item><item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item></item></argument></field>
+        <field name="utm_campaign"><argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">UTM Campaign</item><item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item></item></argument></field>
+        <field name="utm_term"><argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">UTM Term</item><item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item></item></argument></field>
+        <field name="utm_content"><argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">UTM Content</item><item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item></item></argument></field>
+    </fieldset>
     <fieldset name="delivery">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
-                <item name="label" xsi:type="string" translate="true">4. Delivery &amp; Upload Configuration</item>
+                <item name="label" xsi:type="string" translate="true">5. Schedule, Delivery, Preview and Review</item>
             </item>
         </argument>
+        <field name="frequency" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="array">
+                    <item name="manual" xsi:type="array"><item name="value" xsi:type="string">manual</item><item name="label" xsi:type="string" translate="true">Manual only</item></item>
+                    <item name="hourly" xsi:type="array"><item name="value" xsi:type="string">hourly</item><item name="label" xsi:type="string" translate="true">Hourly</item></item>
+                    <item name="daily" xsi:type="array"><item name="value" xsi:type="string">daily</item><item name="label" xsi:type="string" translate="true">Daily</item></item>
+                    <item name="weekly" xsi:type="array"><item name="value" xsi:type="string">weekly</item><item name="label" xsi:type="string" translate="true">Weekly</item></item>
+                    <item name="monthly" xsi:type="array"><item name="value" xsi:type="string">monthly</item><item name="label" xsi:type="string" translate="true">Monthly</item></item>
+                    <item name="custom" xsi:type="array"><item name="value" xsi:type="string">custom</item><item name="label" xsi:type="string" translate="true">Custom cron expression</item></item>
+                </item>
+                <item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Schedule</item><item name="source" xsi:type="string">profile</item></item>
+            </argument>
+        </field>
+        <field name="cron_expression"><argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+            <item name="label" xsi:type="string" translate="true">Cron Expression</item><item name="notice" xsi:type="string" translate="true">Five fields: minute hour day month weekday.</item>
+            <item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item>
+        </item></argument></field>
+        <field name="timezone">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Magento\Config\Model\Config\Source\Locale\Timezone</item>
+                <item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Schedule Timezone</item><item name="formElement" xsi:type="string">select</item><item name="source" xsi:type="string">profile</item><item name="filterOptions" xsi:type="boolean">true</item></item>
+            </argument>
+        </field>
+        <field name="max_retries"><argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+            <item name="label" xsi:type="string" translate="true">Maximum Retries</item><item name="formElement" xsi:type="string">input</item><item name="dataType" xsi:type="string">number</item><item name="source" xsi:type="string">profile</item>
+        </item></argument></field>
         <field name="delivery_type">
             <argument name="data" xsi:type="array">
                 <item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\DeliveryType</item>

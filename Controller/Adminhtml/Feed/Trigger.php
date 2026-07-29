@@ -55,7 +55,7 @@ class Trigger extends Action
             $profile = $this->repository->getById($id);
             switch ($action) {
                 case 'run':
-                    $success = $this->generator->generate($profile);
+                    $success = $this->generator->generate($profile, 'manual');
                     if ($success) {
                         $this->messageManager->addSuccessMessage(__('Feed profile execution completed successfully.'));
                     } else {
