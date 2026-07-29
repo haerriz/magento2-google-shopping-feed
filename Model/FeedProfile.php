@@ -279,4 +279,64 @@ class FeedProfile extends AbstractModel implements FeedProfileInterface
     {
         return $this->setData(self::LOCKED_AT, $lockedAt);
     }
+
+    public function getUtmEnabled()
+    {
+        return (int)$this->getData(self::UTM_ENABLED);
+    }
+
+    public function setUtmEnabled($utmEnabled)
+    {
+        return $this->setData(self::UTM_ENABLED, $utmEnabled);
+    }
+
+    public function getUtmSource()
+    {
+        return $this->getData(self::UTM_SOURCE);
+    }
+
+    public function setUtmSource($utmSource)
+    {
+        return $this->setData(self::UTM_SOURCE, $utmSource);
+    }
+
+    public function getUtmMedium()
+    {
+        return $this->getData(self::UTM_MEDIUM);
+    }
+
+    public function setUtmMedium($utmMedium)
+    {
+        return $this->setData(self::UTM_MEDIUM, $utmMedium);
+    }
+
+    public function getUtmCampaign()
+    {
+        return $this->getData(self::UTM_CAMPAIGN);
+    }
+
+    public function setUtmCampaign($utmCampaign)
+    {
+        return $this->setData(self::UTM_CAMPAIGN, $utmCampaign);
+    }
+
+    public function getUtmTerm()
+    {
+        return $this->getData(self::UTM_TERM);
+    }
+
+    public function setUtmTerm($utmTerm)
+    {
+        return $this->setData(self::UTM_TERM, $utmTerm);
+    }
+
+    public function getUtmContent()
+    {
+        return $this->getData(self::UTM_CONTENT);
+    }
+
+    public function setUtmContent($utmContent)
+    {
+        return $this->setData(self::UTM_CONTENT, $utmContent);
+    }
 }

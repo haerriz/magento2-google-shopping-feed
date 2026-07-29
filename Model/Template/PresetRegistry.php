@@ -16,6 +16,8 @@ class PresetRegistry
                 'format' => 'xml',
                 'schema_version' => '1.0',
                 'last_verified' => '2026-07-29',
+                'utm_source' => 'google',
+                'utm_medium' => 'cpc',
                 'mapping' => [
                     ['google_attribute' => 'g:id', 'magento_attribute' => 'sku'],
                     ['google_attribute' => 'g:title', 'magento_attribute' => 'name'],
@@ -29,6 +31,8 @@ class PresetRegistry
                 'format' => 'csv',
                 'schema_version' => '2.0',
                 'last_verified' => '2026-07-29',
+                'utm_source' => 'facebook',
+                'utm_medium' => 'cpc',
                 'mapping' => [
                     ['google_attribute' => 'id', 'magento_attribute' => 'sku'],
                     ['google_attribute' => 'title', 'magento_attribute' => 'name'],

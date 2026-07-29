@@ -74,6 +74,22 @@ class FeedGenerator
      * @param FeedJobFactory $jobFactory
      * @param JobResource $jobResource
      */
+    /**
+     * @var \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder
+     */
+    protected $utmBuilder;
+
+    /**
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param Filesystem $filesystem
+     * @param StoreManagerInterface $storeManager
+     * @param ModifierPool $modifierPool
+     * @param AdapterPool $adapterPool
+     * @param RuleFactory $ruleFactory
+     * @param FeedJobFactory $jobFactory
+     * @param JobResource $jobResource
+     * @param \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder
+     */
     public function __construct(
         ProductCollectionFactory $productCollectionFactory,
         Filesystem $filesystem,
@@ -82,7 +98,8 @@ class FeedGenerator
         AdapterPool $adapterPool,
         RuleFactory $ruleFactory,
         FeedJobFactory $jobFactory,
-        JobResource $jobResource
+        JobResource $jobResource,
+        \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->filesystem = $filesystem;
@@ -92,6 +109,7 @@ class FeedGenerator
         $this->ruleFactory = $ruleFactory;
         $this->jobFactory = $jobFactory;
         $this->jobResource = $jobResource;
+        $this->utmBuilder = $utmBuilder;
     }
 
     public function generate(FeedProfileInterface $profile, $triggerSource = 'cron')
@@ -243,6 +261,10 @@ class FeedGenerator
                 $row = [];
                 foreach ($mapping as $map) {
                     $value = $product->getData($map['magento_attribute']);
+                    if ($map['magento_attribute'] === 'url' || $map['google_attribute'] === 'link') {
+                        $value = $product->getProductUrl();
+                        $value = $this->utmBuilder->buildUrl($value, $profile, $product);
+                    }
                     $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
                     $row[] = $value;
                 }
@@ -336,6 +358,10 @@ class FeedGenerator
                 foreach ($mapping as $map) {
                     $googleTag = $map['google_attribute'];
                     $value = $product->getData($map['magento_attribute']);
+                    if ($map['magento_attribute'] === 'url' || $googleTag === 'link') {
+                        $value = $product->getProductUrl();
+                        $value = $this->utmBuilder->buildUrl($value, $profile, $product);
+                    }
                     $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
 
                     if ($value !== null && $value !== '') {

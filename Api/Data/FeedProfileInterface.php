@@ -32,6 +32,13 @@ interface FeedProfileInterface
     const IS_LOCKED = 'is_locked';
     const LOCKED_AT = 'locked_at';
 
+    const UTM_ENABLED = 'utm_enabled';
+    const UTM_SOURCE = 'utm_source';
+    const UTM_MEDIUM = 'utm_medium';
+    const UTM_CAMPAIGN = 'utm_campaign';
+    const UTM_TERM = 'utm_term';
+    const UTM_CONTENT = 'utm_content';
+
     /**
      * @return int|null
      */
@@ -327,4 +334,70 @@ interface FeedProfileInterface
      * @return $this
      */
     public function setLockedAt($lockedAt);
+
+    /**
+     * @return int
+     */
+    public function getUtmEnabled();
+
+    /**
+     * @param int $utmEnabled
+     * @return $this
+     */
+    public function setUtmEnabled($utmEnabled);
+
+    /**
+     * @return string|null
+     */
+    public function getUtmSource();
+
+    /**
+     * @param string|null $utmSource
+     * @return $this
+     */
+    public function setUtmSource($utmSource);
+
+    /**
+     * @return string|null
+     */
+    public function getUtmMedium();
+
+    /**
+     * @param string|null $utmMedium
+     * @return $this
+     */
+    public function setUtmMedium($utmMedium);
+
+    /**
+     * @return string|null
+     */
+    public function getUtmCampaign();
+
+    /**
+     * @param string|null $utmCampaign
+     * @return $this
+     */
+    public function setUtmCampaign($utmCampaign);
+
+    /**
+     * @return string|null
+     */
+    public function getUtmTerm();
+
+    /**
+     * @param string|null $utmTerm
+     * @return $this
+     */
+    public function setUtmTerm($utmTerm);
+
+    /**
+     * @return string|null
+     */
+    public function getUtmContent();
+
+    /**
+     * @param string|null $utmContent
+     * @return $this
+     */
+    public function setUtmContent($utmContent);
 }

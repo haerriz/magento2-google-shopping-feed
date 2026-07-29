@@ -26,6 +26,12 @@
         <column xsi:type="int" name="consecutive_failures" padding="5" unsigned="true" nullable="false" default="0" comment="Consecutive Failures Count"/>
         <column xsi:type="smallint" name="is_locked" padding="5" unsigned="true" nullable="false" default="0" comment="Is Running Lock"/>
         <column xsi:type="timestamp" name="locked_at" nullable="true" comment="Lock Time"/>
+        <column xsi:type="smallint" name="utm_enabled" padding="5" unsigned="true" nullable="false" default="0" comment="Enable UTM Tracking"/>
+        <column xsi:type="varchar" name="utm_source" nullable="true" length="128" comment="UTM Source"/>
+        <column xsi:type="varchar" name="utm_medium" nullable="true" length="128" comment="UTM Medium"/>
+        <column xsi:type="varchar" name="utm_campaign" nullable="true" length="128" comment="UTM Campaign"/>
+        <column xsi:type="varchar" name="utm_term" nullable="true" length="128" comment="UTM Term"/>
+        <column xsi:type="varchar" name="utm_content" nullable="true" length="128" comment="UTM Content"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Update Time"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
