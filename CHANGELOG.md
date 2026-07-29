@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 - **Phase 1**: Added base queue and log tables (`haerriz_google_shopping_feed_job`, `haerriz_google_shopping_feed_log`).
 - **Phase 1**: Introduced full suite of Magento Service Contracts (`Api/Data/` and `Api/`) for strict data type enforcement.
 - **Phase 1**: Created proper `Repository` and SearchCriteria implementations.
+- **Phase 2**: Secure config reader (`Model/Config`) implemented with memory caching.
+- **Phase 2**: Dedicated system logger channel (`var/log/haerriz_googleshoppingfeed.log`) configured via custom Monolog integration.
+- **Phase 2**: Enforced strict input validation on Google Merchant Center ID in configuration backend.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.

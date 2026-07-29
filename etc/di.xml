@@ -3,6 +3,26 @@
 
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfile"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfileRepository"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJob"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobRepository"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLog"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedLogRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogRepository"/>
+
+    <!-- Custom Logger Configuration -->
+    <virtualType name="Haerriz\GoogleShoppingFeed\Logger\Handler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/log/haerriz_googleshoppingfeed.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Haerriz\GoogleShoppingFeed\Logger\Logger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">haerrizGoogleShoppingFeed</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Haerriz\GoogleShoppingFeed\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
 
     <!-- UI Component Data Source Registration -->
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
