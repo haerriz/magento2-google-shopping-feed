@@ -63,6 +63,48 @@
                 </item>
             </argument>
         </column>
+        <column name="trigger_source">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Source</item>
+                </item>
+            </argument>
+        </column>
+        <column name="exported_count">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Exported</item>
+                </item>
+            </argument>
+        </column>
+        <column name="skipped_count">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Skipped</item>
+                </item>
+            </argument>
+        </column>
+        <column name="file_size">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">File Size (Bytes)</item>
+                </item>
+            </argument>
+        </column>
+        <column name="duration">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Duration (s)</item>
+                </item>
+            </argument>
+        </column>
+        <column name="delivery_result">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Delivery Result</item>
+                </item>
+            </argument>
+        </column>
         <column name="started_at">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

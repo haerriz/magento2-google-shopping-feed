@@ -40,6 +40,17 @@
         <column xsi:type="varchar" name="status" nullable="false" length="50" default="pending" comment="Job Status"/>
         <column xsi:type="int" name="total_products" padding="10" unsigned="true" nullable="false" default="0" comment="Total Products"/>
         <column xsi:type="int" name="processed_products" padding="10" unsigned="true" nullable="false" default="0" comment="Processed Products"/>
+        <column xsi:type="varchar" name="trigger_source" nullable="false" length="32" default="cron" comment="Trigger Source"/>
+        <column xsi:type="int" name="selected_count" padding="10" unsigned="true" nullable="false" default="0" comment="Selected Products Count"/>
+        <column xsi:type="int" name="exported_count" padding="10" unsigned="true" nullable="false" default="0" comment="Exported Products Count"/>
+        <column xsi:type="int" name="skipped_count" padding="10" unsigned="true" nullable="false" default="0" comment="Skipped Products Count"/>
+        <column xsi:type="int" name="warning_count" padding="10" unsigned="true" nullable="false" default="0" comment="Warnings Count"/>
+        <column xsi:type="int" name="error_count" padding="10" unsigned="true" nullable="false" default="0" comment="Errors Count"/>
+        <column xsi:type="bigint" name="file_size" unsigned="true" nullable="false" default="0" comment="Generated File Size"/>
+        <column xsi:type="varchar" name="checksum" nullable="true" length="64" comment="Generated File Checksum"/>
+        <column xsi:type="decimal" name="duration" scale="2" precision="10" nullable="false" default="0.00" comment="Duration in Seconds"/>
+        <column xsi:type="bigint" name="peak_memory" unsigned="true" nullable="false" default="0" comment="Peak Memory in Bytes"/>
+        <column xsi:type="varchar" name="delivery_result" nullable="true" length="255" comment="Delivery Result Summary"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="timestamp" name="started_at" on_update="false" nullable="true" comment="Start Time"/>
         <column xsi:type="timestamp" name="finished_at" on_update="false" nullable="true" comment="Finish Time"/>

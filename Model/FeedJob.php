@@ -90,4 +90,114 @@ class FeedJob extends AbstractModel implements FeedJobInterface
     {
         return $this->setData(self::FINISHED_AT, $finishedAt);
     }
+
+    public function getTriggerSource()
+    {
+        return $this->getData(self::TRIGGER_SOURCE);
+    }
+
+    public function setTriggerSource($triggerSource)
+    {
+        return $this->setData(self::TRIGGER_SOURCE, $triggerSource);
+    }
+
+    public function getSelectedCount()
+    {
+        return (int)$this->getData(self::SELECTED_COUNT);
+    }
+
+    public function setSelectedCount($selectedCount)
+    {
+        return $this->setData(self::SELECTED_COUNT, $selectedCount);
+    }
+
+    public function getExportedCount()
+    {
+        return (int)$this->getData(self::EXPORTED_COUNT);
+    }
+
+    public function setExportedCount($exportedCount)
+    {
+        return $this->setData(self::EXPORTED_COUNT, $exportedCount);
+    }
+
+    public function getSkippedCount()
+    {
+        return (int)$this->getData(self::SKIPPED_COUNT);
+    }
+
+    public function setSkippedCount($skippedCount)
+    {
+        return $this->setData(self::SKIPPED_COUNT, $skippedCount);
+    }
+
+    public function getWarningCount()
+    {
+        return (int)$this->getData(self::WARNING_COUNT);
+    }
+
+    public function setWarningCount($warningCount)
+    {
+        return $this->setData(self::WARNING_COUNT, $warningCount);
+    }
+
+    public function getErrorCount()
+    {
+        return (int)$this->getData(self::ERROR_COUNT);
+    }
+
+    public function setErrorCount($errorCount)
+    {
+        return $this->setData(self::ERROR_COUNT, $errorCount);
+    }
+
+    public function getFileSize()
+    {
+        return (int)$this->getData(self::FILE_SIZE);
+    }
+
+    public function setFileSize($fileSize)
+    {
+        return $this->setData(self::FILE_SIZE, $fileSize);
+    }
+
+    public function getChecksum()
+    {
+        return $this->getData(self::CHECKSUM);
+    }
+
+    public function setChecksum($checksum)
+    {
+        return $this->setData(self::CHECKSUM, $checksum);
+    }
+
+    public function getDuration()
+    {
+        return (float)$this->getData(self::DURATION);
+    }
+
+    public function setDuration($duration)
+    {
+        return $this->setData(self::DURATION, $duration);
+    }
+
+    public function getPeakMemory()
+    {
+        return (int)$this->getData(self::PEAK_MEMORY);
+    }
+
+    public function setPeakMemory($peakMemory)
+    {
+        return $this->setData(self::PEAK_MEMORY, $peakMemory);
+    }
+
+    public function getDeliveryResult()
+    {
+        return $this->getData(self::DELIVERY_RESULT);
+    }
+
+    public function setDeliveryResult($deliveryResult)
+    {
+        return $this->setData(self::DELIVERY_RESULT, $deliveryResult);
+    }
 }

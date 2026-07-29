@@ -54,13 +54,35 @@ class FeedGenerator
      * @param AdapterPool $adapterPool
      * @param RuleFactory $ruleFactory
      */
+    /**
+     * @var FeedJobFactory
+     */
+    protected $jobFactory;
+
+    /**
+     * @var JobResource
+     */
+    protected $jobResource;
+
+    /**
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param Filesystem $filesystem
+     * @param StoreManagerInterface $storeManager
+     * @param ModifierPool $modifierPool
+     * @param AdapterPool $adapterPool
+     * @param RuleFactory $ruleFactory
+     * @param FeedJobFactory $jobFactory
+     * @param JobResource $jobResource
+     */
     public function __construct(
         ProductCollectionFactory $productCollectionFactory,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager,
         ModifierPool $modifierPool,
         AdapterPool $adapterPool,
-        RuleFactory $ruleFactory
+        RuleFactory $ruleFactory,
+        FeedJobFactory $jobFactory,
+        JobResource $jobResource
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->filesystem = $filesystem;
@@ -68,36 +90,67 @@ class FeedGenerator
         $this->modifierPool = $modifierPool;
         $this->adapterPool = $adapterPool;
         $this->ruleFactory = $ruleFactory;
+        $this->jobFactory = $jobFactory;
+        $this->jobResource = $jobResource;
     }
 
-    /**
-     * Generate feed
-     *
-     * @param FeedProfileInterface $profile
-     * @return bool
-     */
-    public function generate(FeedProfileInterface $profile)
+    public function generate(FeedProfileInterface $profile, $triggerSource = 'cron')
     {
+        $startTime = microtime(true);
         $storeId = $profile->getStoreId();
         $this->storeManager->setCurrentStore($storeId);
 
         $type = $profile->getFeedType();
         $filename = $profile->getFilename();
 
+        // Instantiate job tracing entry
+        $job = $this->jobFactory->create();
+        $job->setProfileId($profile->getId());
+        $job->setStatus('running');
+        $job->setTriggerSource($triggerSource);
+        $job->setStartedAt(date('Y-m-d H:i:s'));
+        $this->jobResource->save($job);
+
         if ($type === 'csv') {
-            $result = $this->generateCsv($profile, $filename);
+            $result = $this->generateCsv($profile, $filename, $job);
         } else {
-            $result = $this->generateXml($profile, $filename);
+            $result = $this->generateXml($profile, $filename, $job);
         }
+
+        $duration = round(microtime(true) - $startTime, 2);
+        $job->setDuration($duration);
+        $job->setPeakMemory(memory_get_peak_usage(true));
 
         if ($result) {
             $localPath = 'google_feed/' . $filename;
+            
+            // Check file properties
+            $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
+            if ($directory->isFile($localPath)) {
+                $job->setFileSize($directory->stat($localPath)['size']);
+                $job->setChecksum(md5($directory->readFile($localPath)));
+            }
+
             $deliveryType = $profile->getDeliveryType() ?: 'local';
-            $adapter = $this->adapterPool->get($deliveryType);
-            return $adapter->upload($profile, $localPath);
+            try {
+                $adapter = $this->adapterPool->get($deliveryType);
+                $delivered = $adapter->upload($profile, $localPath);
+                
+                $job->setStatus($delivered ? 'success' : 'failed');
+                $job->setDeliveryResult($delivered ? 'Delivered successfully' : 'Delivery failed');
+            } catch (\Exception $e) {
+                $job->setStatus('failed');
+                $job->setDeliveryResult($e->getMessage());
+                $result = false;
+            }
+        } else {
+            $job->setStatus('failed');
         }
 
-        return false;
+        $job->setFinishedAt(date('Y-m-d H:i:s'));
+        $this->jobResource->save($job);
+
+        return $result;
     }
 
     /**
@@ -126,9 +179,10 @@ class FeedGenerator
      *
      * @param FeedProfileInterface $profile
      * @param string $filename
+     * @param \Haerriz\GoogleShoppingFeed\Model\FeedJob|null $job
      * @return bool
      */
-    protected function generateCsv(FeedProfileInterface $profile, $filename)
+    protected function generateCsv(FeedProfileInterface $profile, $filename, $job = null)
     {
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $stream = $directory->openFile('google_feed/' . $filename, 'w+');
@@ -158,6 +212,19 @@ class FeedGenerator
         $page = 1;
         $storeId = $profile->getStoreId();
         
+        $selected = 0;
+        $processed = 0;
+        $exported = 0;
+        $skipped = 0;
+
+        // Get total catalog count for selected
+        $totalCollection = $this->getProductCollection($storeId, $rule);
+        $selected = $totalCollection->getSize();
+        if ($job) {
+            $job->setSelectedCount($selected);
+            $job->setTotalProducts($selected);
+        }
+
         while (true) {
             $collection = $this->getProductCollection($storeId, $rule);
             $collection->setPage($page, self::BATCH_SIZE);
@@ -167,7 +234,9 @@ class FeedGenerator
             }
 
             foreach ($collection as $product) {
+                $processed++;
                 if ($rule && !$rule->getConditions()->validate($product)) {
+                    $skipped++;
                     continue;
                 }
 
@@ -178,6 +247,14 @@ class FeedGenerator
                     $row[] = $value;
                 }
                 $stream->writeCsv($row);
+                $exported++;
+            }
+
+            if ($job) {
+                $job->setProcessedProducts($processed);
+                $job->setExportedCount($exported);
+                $job->setSkippedCount($skipped);
+                $this->jobResource->save($job);
             }
 
             $collection->clear();
@@ -194,9 +271,10 @@ class FeedGenerator
      *
      * @param FeedProfileInterface $profile
      * @param string $filename
+     * @param \Haerriz\GoogleShoppingFeed\Model\FeedJob|null $job
      * @return bool
      */
-    protected function generateXml(FeedProfileInterface $profile, $filename)
+    protected function generateXml(FeedProfileInterface $profile, $filename, $job = null)
     {
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $stream = $directory->openFile('google_feed/' . $filename, 'w+');
@@ -226,6 +304,19 @@ class FeedGenerator
         $page = 1;
         $storeId = $profile->getStoreId();
 
+        $selected = 0;
+        $processed = 0;
+        $exported = 0;
+        $skipped = 0;
+
+        // Get total catalog count for selected
+        $totalCollection = $this->getProductCollection($storeId, $rule);
+        $selected = $totalCollection->getSize();
+        if ($job) {
+            $job->setSelectedCount($selected);
+            $job->setTotalProducts($selected);
+        }
+
         while (true) {
             $collection = $this->getProductCollection($storeId, $rule);
             $collection->setPage($page, self::BATCH_SIZE);
@@ -235,7 +326,9 @@ class FeedGenerator
             }
 
             foreach ($collection as $product) {
+                $processed++;
                 if ($rule && !$rule->getConditions()->validate($product)) {
+                    $skipped++;
                     continue;
                 }
 
@@ -251,6 +344,14 @@ class FeedGenerator
                 }
                 $xmlItem .= "  </item>\n";
                 $stream->write($xmlItem);
+                $exported++;
+            }
+
+            if ($job) {
+                $job->setProcessedProducts($processed);
+                $job->setExportedCount($exported);
+                $job->setSkippedCount($skipped);
+                $this->jobResource->save($job);
             }
 
             $collection->clear();
