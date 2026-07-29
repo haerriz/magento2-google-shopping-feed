@@ -482,6 +482,44 @@
                 </item>
             </argument>
         </field>
+        <field name="delivery_private_key" formElement="textarea">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">SFTP Private Key</item>
+                <item name="notice" xsi:type="string" translate="true">Leave blank to keep the encrypted saved key.</item>
+                <item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
+        <field name="delivery_key_passphrase">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Private Key Passphrase</item>
+                <item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
+        <field name="sftp_fingerprint">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">SFTP Host Fingerprint</item>
+                <item name="notice" xsi:type="string" translate="true">Required SHA256: or MD5: fingerprint.</item>
+                <item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
+        <field name="delivery_timeout">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Connection Timeout (seconds)</item>
+                <item name="formElement" xsi:type="string">input</item><item name="dataType" xsi:type="string">number</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
+        <field name="ftp_passive" formElement="checkbox">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">FTP Passive Mode</item><item name="source" xsi:type="string">profile</item><item name="prefer" xsi:type="string">toggle</item>
+                <item name="valueMap" xsi:type="array"><item name="false" xsi:type="number">0</item><item name="true" xsi:type="number">1</item></item>
+            </item></argument>
+        </field>
+        <field name="remote_filename">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Remote Filename</item>
+                <item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
         <field name="delivery_path">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

@@ -159,6 +159,16 @@ class Save extends Action
                         $this->credentialProvider->encrypt((string)$data['delivery_password'])
                     );
                 }
+                foreach (['delivery_private_key', 'delivery_key_passphrase'] as $secretField) {
+                    if (!empty($data['clear_' . $secretField])) {
+                        $model->setData($secretField, null);
+                    } elseif (isset($data[$secretField]) && trim((string)$data[$secretField]) !== '') {
+                        $model->setData(
+                            $secretField,
+                            $this->credentialProvider->encrypt((string)$data[$secretField])
+                        );
+                    }
+                }
                 
                 $model->setAttributesMappingSerialized($data['attributes_mapping_serialized'] ?? null);
                 $model->setConditionsSerialized($data['conditions_serialized'] ?? null);

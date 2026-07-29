@@ -45,6 +45,8 @@
         <column xsi:type="smallint" name="ftp_passive" unsigned="true" nullable="false" default="1" comment="FTP Passive Mode"/>
         <column xsi:type="varchar" name="remote_filename" nullable="true" length="255" comment="Remote Filename"/>
         <column xsi:type="varchar" name="sftp_fingerprint" nullable="true" length="255" comment="SFTP Host Fingerprint"/>
+        <column xsi:type="text" name="delivery_private_key" nullable="true" comment="Encrypted SFTP Private Key"/>
+        <column xsi:type="text" name="delivery_key_passphrase" nullable="true" comment="Encrypted SFTP Key Passphrase"/>
         <column xsi:type="varchar" name="cron_expression" nullable="true" length="128" comment="Custom Cron Expression"/>
         <column xsi:type="varchar" name="frequency" nullable="true" length="32" comment="Cron Frequency"/>
         <column xsi:type="varchar" name="timezone" nullable="true" length="64" comment="Timezone"/>

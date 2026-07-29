@@ -92,4 +92,27 @@ class Ftp implements AdapterInterface
             throw new LocalizedException(__('FTP upload failed. Verify the connection settings.'), $e);
         }
     }
+
+    public function testConnection(FeedProfileInterface $profile)
+    {
+        $password = $this->encryptor->decrypt($profile->getDeliveryPassword());
+        $opened = false;
+        try {
+            $this->ftpIo->open([
+                'host' => $profile->getDeliveryHost(),
+                'port' => $profile->getDeliveryPort() ?: 21,
+                'user' => $profile->getDeliveryUsername(),
+                'password' => $password,
+                'passive' => (bool)$profile->getData('ftp_passive'),
+                'timeout' => max(1, (int)$profile->getData('delivery_timeout')),
+            ]);
+            $opened = true;
+            $path = (string)$profile->getDeliveryPath();
+            return $path === '' || (bool)$this->ftpIo->cd($path);
+        } finally {
+            if ($opened) {
+                $this->ftpIo->close();
+            }
+        }
+    }
 }
