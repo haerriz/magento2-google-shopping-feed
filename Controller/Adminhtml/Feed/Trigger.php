@@ -8,7 +8,7 @@ use Haerriz\GoogleShoppingFeed\Model\FeedGenerator;
 
 class Trigger extends Action
 {
-    const ADMIN_RESOURCE = 'Haerriz_GoogleShoppingFeed::feed_profiles';
+    const ADMIN_RESOURCE = 'Haerriz_GoogleShoppingFeed::generate';
 
     /**
      * @var FeedProfileRepositoryInterface

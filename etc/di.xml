@@ -2,10 +2,13 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfile"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileSearchResultsInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfileSearchResults"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfileRepository"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJob"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobSearchResultsInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobSearchResults"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobRepository"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLog"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogSearchResultsInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogSearchResults"/>
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedLogRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogRepository"/>
 
     <!-- Custom Logger Configuration -->
