@@ -12,6 +12,7 @@ use Haerriz\GoogleShoppingFeed\Model\Storage\AdapterPool;
 
 use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
 use Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob as JobResource;
+use Haerriz\GoogleShoppingFeed\Model\Logger\Sanitizer;
 
 class FeedGenerator
 {
@@ -81,6 +82,11 @@ class FeedGenerator
     protected $utmBuilder;
 
     /**
+     * @var Sanitizer
+     */
+    private $sanitizer;
+
+    /**
      * @param ProductCollectionFactory $productCollectionFactory
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
@@ -100,7 +106,8 @@ class FeedGenerator
         RuleFactory $ruleFactory,
         FeedJobFactory $jobFactory,
         JobResource $jobResource,
-        \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder
+        \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder,
+        Sanitizer $sanitizer
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->filesystem = $filesystem;
@@ -111,16 +118,20 @@ class FeedGenerator
         $this->jobFactory = $jobFactory;
         $this->jobResource = $jobResource;
         $this->utmBuilder = $utmBuilder;
+        $this->sanitizer = $sanitizer;
     }
 
     public function generate(FeedProfileInterface $profile, $triggerSource = 'cron')
     {
         $startTime = microtime(true);
-        $storeId = $profile->getStoreId();
-        $this->storeManager->setCurrentStore($storeId);
-
         $type = $profile->getFeedType();
         $filename = $profile->getFilename();
+        $correlationId = bin2hex(random_bytes(16));
+        $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
+        $localPath = 'google_feed/' . $filename;
+        $temporaryPath = 'google_feed/.' . $filename . '.' . $correlationId . '.tmp';
+        $result = false;
+        $generated = false;
 
         // Instantiate job tracing entry
         $job = $this->jobFactory->create();
@@ -128,48 +139,72 @@ class FeedGenerator
         $job->setStatus('running');
         $job->setTriggerSource($triggerSource);
         $job->setStartedAt(date('Y-m-d H:i:s'));
+        $job->setData('correlation_id', $correlationId);
+        $job->setData('format', $type);
+        $job->setData('artifact_path', $localPath);
+        $job->setData('profile_snapshot', json_encode($this->getSafeProfileSnapshot($profile)));
         $this->jobResource->save($job);
 
-        if ($type === 'csv') {
-            $result = $this->generateCsv($profile, $filename, $job);
-        } else {
-            $result = $this->generateXml($profile, $filename, $job);
-        }
-
-        $duration = round(microtime(true) - $startTime, 2);
-        $job->setDuration($duration);
-        $job->setPeakMemory(memory_get_peak_usage(true));
-
-        if ($result) {
-            $localPath = 'google_feed/' . $filename;
-            
-            // Check file properties
-            $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
-            if ($directory->isFile($localPath)) {
-                $job->setFileSize($directory->stat($localPath)['size']);
-                $job->setChecksum(md5($directory->readFile($localPath)));
+        try {
+            if ($type === 'csv') {
+                $this->generateCsv($profile, $temporaryPath, $job);
+            } elseif ($type === 'xml') {
+                $this->generateXml($profile, $temporaryPath, $job);
+            } else {
+                throw new \InvalidArgumentException('Unsupported feed format.');
             }
+
+            $directory->renameFile($temporaryPath, $localPath);
+            $generated = true;
+            $absolutePath = $directory->getAbsolutePath($localPath);
+            $job->setFileSize($directory->stat($localPath)['size']);
+            $job->setChecksum(hash_file('sha256', $absolutePath));
 
             $deliveryType = $profile->getDeliveryType() ?: 'local';
-            try {
-                $adapter = $this->adapterPool->get($deliveryType);
-                $delivered = $adapter->upload($profile, $localPath);
-                
-                $job->setStatus($delivered ? 'success' : 'failed');
-                $job->setDeliveryResult($delivered ? 'Delivered successfully' : 'Delivery failed');
-            } catch (\Exception $e) {
-                $job->setStatus('failed');
-                $job->setDeliveryResult($e->getMessage());
-                $result = false;
+            $adapter = $this->adapterPool->get($deliveryType);
+            $result = (bool)$adapter->upload($profile, $localPath);
+            $job->setStatus($result ? 'success' : 'partial');
+            $job->setDeliveryResult($result ? 'Delivered successfully' : 'Delivery failed');
+        } catch (\Throwable $exception) {
+            $safeMessage = $this->sanitizer->sanitize($exception->getMessage());
+            $job->setStatus($generated ? 'partial' : 'failed');
+            $job->setData('failure_category', $generated ? 'delivery' : 'generation');
+            $job->setData('failure_message', mb_substr($safeMessage, 0, 1000));
+            $job->setData('exception_class', get_class($exception));
+            $job->setDeliveryResult(__('Operation failed. Correlation ID: %1', $correlationId));
+            $result = false;
+        } finally {
+            if ($directory->isExist($temporaryPath)) {
+                $directory->delete($temporaryPath);
             }
-        } else {
-            $job->setStatus('failed');
+
+            $job->setDuration(round(microtime(true) - $startTime, 2));
+            $job->setPeakMemory(memory_get_peak_usage(true));
+            $job->setFinishedAt(date('Y-m-d H:i:s'));
+            $this->jobResource->save($job);
         }
 
-        $job->setFinishedAt(date('Y-m-d H:i:s'));
-        $this->jobResource->save($job);
-
         return $result;
+    }
+
+    /**
+     * Return a job snapshot that cannot expose persisted credentials.
+     *
+     * @param FeedProfileInterface $profile
+     * @return array
+     */
+    private function getSafeProfileSnapshot(FeedProfileInterface $profile)
+    {
+        return [
+            'profile_id' => $profile->getId(),
+            'store_id' => $profile->getStoreId(),
+            'currency' => $profile->getCurrency(),
+            'filename' => $profile->getFilename(),
+            'feed_type' => $profile->getFeedType(),
+            'delivery_type' => $profile->getDeliveryType(),
+            'attributes_mapping_serialized' => $profile->getAttributesMappingSerialized(),
+            'conditions_serialized' => $profile->getConditionsSerialized(),
+        ];
     }
 
     /**
@@ -181,7 +216,7 @@ class FeedGenerator
     protected function getProductCollection($storeId, $rule = null)
     {
         $collection = $this->productCollectionFactory->create();
-        $collection->addAttributeToSelect('*');
+        $collection->addAttributeToSelect(['sku', 'name', 'price', 'special_price', 'image']);
         $collection->addStoreFilter($storeId);
         $collection->addAttributeToFilter('status', \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
         $collection->addAttributeToFilter('visibility', ['neq' => \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE]);
@@ -201,20 +236,20 @@ class FeedGenerator
      * @param \Haerriz\GoogleShoppingFeed\Model\FeedJob|null $job
      * @return bool
      */
-    protected function generateCsv(FeedProfileInterface $profile, $filename, $job = null)
+    protected function generateCsv(FeedProfileInterface $profile, $outputPath, $job = null)
     {
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
-        $stream = $directory->openFile('google_feed/' . $filename, 'w+');
-        $stream->lock();
+        $stream = null;
+        try {
+            $stream = $directory->openFile($outputPath, 'w+');
+            $stream->lock();
 
-        $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
-        
-        // Write CSV Headers
-        $headers = [];
-        foreach ($mapping as $map) {
-            $headers[] = $map['google_attribute'];
-        }
-        $stream->writeCsv($headers);
+            $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
+            $headers = [];
+            foreach ($mapping as $map) {
+                $headers[] = $map['google_attribute'];
+            }
+            $stream->writeCsv($headers);
 
         // Load rules if set
         $rule = null;
@@ -282,9 +317,13 @@ class FeedGenerator
             $collection->clear();
         }
 
-        $stream->unlock();
-        $stream->close();
-        return true;
+            return true;
+        } finally {
+            if ($stream) {
+                $stream->unlock();
+                $stream->close();
+            }
+        }
     }
 
     /**
@@ -295,18 +334,20 @@ class FeedGenerator
      * @param \Haerriz\GoogleShoppingFeed\Model\FeedJob|null $job
      * @return bool
      */
-    protected function generateXml(FeedProfileInterface $profile, $filename, $job = null)
+    protected function generateXml(FeedProfileInterface $profile, $outputPath, $job = null)
     {
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
-        $stream = $directory->openFile('google_feed/' . $filename, 'w+');
-        $stream->lock();
+        $stream = null;
+        try {
+            $stream = $directory->openFile($outputPath, 'w+');
+            $stream->lock();
 
         // Write XML Header
         $xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xmlHeader .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
         $xmlHeader .= '<channel>' . "\n";
         $xmlHeader .= '<title><![CDATA[' . $profile->getName() . ']]></title>' . "\n";
-        $xmlHeader .= '<link><![CDATA[' . $this->storeManager->getStore()->getBaseUrl() . ']]></link>' . "\n";
+        $xmlHeader .= '<link><![CDATA[' . $this->storeManager->getStore($profile->getStoreId())->getBaseUrl() . ']]></link>' . "\n";
         $stream->write($xmlHeader);
 
         $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
@@ -359,6 +400,9 @@ class FeedGenerator
                 $xmlItem = "  <item>\n";
                 foreach ($mapping as $map) {
                     $googleTag = $map['google_attribute'];
+                    if (!preg_match('/^(?:[A-Za-z_][A-Za-z0-9_.-]*:)?[A-Za-z_][A-Za-z0-9_.-]*$/', $googleTag)) {
+                        throw new \InvalidArgumentException('Invalid XML output field name.');
+                    }
                     $value = $this->resolveFeedValue($map, $product, $profile);
                     $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
 
@@ -387,9 +431,13 @@ class FeedGenerator
         $xmlFooter .= '</rss>';
         $stream->write($xmlFooter);
 
-        $stream->unlock();
-        $stream->close();
-        return true;
+            return true;
+        } finally {
+            if ($stream) {
+                $stream->unlock();
+                $stream->close();
+            }
+        }
     }
 
     /**
@@ -416,7 +464,7 @@ class FeedGenerator
                 if ($image === '' || $image === 'no_selection') {
                     return '';
                 }
-                return $this->storeManager->getStore()->getBaseUrl(
+                return $this->storeManager->getStore($profile->getStoreId())->getBaseUrl(
                     \Magento\Framework\UrlInterface::URL_TYPE_MEDIA
                 ) . 'catalog/product' . $image;
 

@@ -57,6 +57,13 @@
         <column xsi:type="decimal" name="duration" scale="2" precision="10" nullable="false" default="0.00" comment="Duration in Seconds"/>
         <column xsi:type="bigint" name="peak_memory" unsigned="true" nullable="false" default="0" comment="Peak Memory in Bytes"/>
         <column xsi:type="varchar" name="delivery_result" nullable="true" length="255" comment="Delivery Result Summary"/>
+        <column xsi:type="varchar" name="failure_category" nullable="true" length="64" comment="Failure Category"/>
+        <column xsi:type="text" name="failure_message" nullable="true" comment="Redacted Failure Message"/>
+        <column xsi:type="varchar" name="exception_class" nullable="true" length="255" comment="Exception Class"/>
+        <column xsi:type="varchar" name="correlation_id" nullable="true" length="64" comment="Correlation ID"/>
+        <column xsi:type="varchar" name="artifact_path" nullable="true" length="512" comment="Published Artifact Path"/>
+        <column xsi:type="varchar" name="format" nullable="true" length="32" comment="Artifact Format"/>
+        <column xsi:type="mediumtext" name="profile_snapshot" nullable="true" comment="Redacted Profile Configuration Snapshot"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="timestamp" name="started_at" on_update="false" nullable="true" comment="Start Time"/>
         <column xsi:type="timestamp" name="finished_at" on_update="false" nullable="true" comment="Finish Time"/>
