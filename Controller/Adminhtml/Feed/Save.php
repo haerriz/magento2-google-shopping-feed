@@ -78,6 +78,55 @@ class Save extends Action
                 if (isset($data['filename'])) $model->setFilename($data['filename']);
                 if (isset($data['feed_type'])) $model->setFeedType($data['feed_type']);
 
+                $profileFields = [
+                    'locale',
+                    'target_country',
+                    'content_language',
+                    'channel',
+                    'template_version',
+                    'delimiter',
+                    'enclosure',
+                    'line_ending',
+                    'encoding',
+                    'compression',
+                    'max_products_per_file',
+                    'max_bytes_per_file',
+                    'include_category_ids',
+                    'exclude_category_ids',
+                    'include_category_descendants',
+                    'include_disabled',
+                    'visibility_values',
+                    'stock_policy',
+                    'conditional_values_serialized',
+                    'modifier_chains_serialized',
+                    'configurable_strategy',
+                    'bundle_strategy',
+                    'grouped_strategy',
+                    'include_virtual',
+                    'include_downloadable',
+                    'delivery_timeout',
+                    'ftp_passive',
+                    'remote_filename',
+                    'sftp_fingerprint',
+                    'frequency',
+                    'cron_expression',
+                    'timezone',
+                    'concurrency_policy',
+                    'missed_run_policy',
+                    'max_retries',
+                    'utm_enabled',
+                    'utm_source',
+                    'utm_medium',
+                    'utm_campaign',
+                    'utm_term',
+                    'utm_content',
+                ];
+                foreach ($profileFields as $field) {
+                    if (array_key_exists($field, $data)) {
+                        $model->setData($field, $data[$field]);
+                    }
+                }
+
                 if (isset($data['delivery_type'])) $model->setDeliveryType($data['delivery_type']);
                 if (isset($data['delivery_host'])) $model->setDeliveryHost($data['delivery_host']);
                 if (isset($data['delivery_port'])) $model->setDeliveryPort((int)$data['delivery_port']);

@@ -6,21 +6,51 @@
         <column xsi:type="smallint" name="status" padding="6" unsigned="true" nullable="false" default="0" comment="Status"/>
         <column xsi:type="smallint" name="store_id" padding="5" unsigned="true" nullable="false" default="0" comment="Store View ID"/>
         <column xsi:type="varchar" name="currency" nullable="false" length="3" default="USD" comment="Currency"/>
+        <column xsi:type="varchar" name="locale" nullable="false" length="16" default="en_US" comment="Profile Locale"/>
+        <column xsi:type="varchar" name="target_country" nullable="false" length="2" default="US" comment="Target Country"/>
+        <column xsi:type="varchar" name="content_language" nullable="false" length="16" default="en" comment="Content Language"/>
+        <column xsi:type="varchar" name="channel" nullable="false" length="64" default="google" comment="Feed Channel"/>
+        <column xsi:type="varchar" name="template_version" nullable="false" length="32" default="1" comment="Pinned Template Version"/>
         <column xsi:type="varchar" name="filename" nullable="false" length="255" comment="Filename"/>
         <column xsi:type="varchar" name="feed_type" nullable="false" length="50" default="csv" comment="Feed Format (csv, xml)"/>
+        <column xsi:type="varchar" name="delimiter" nullable="false" length="8" default="," comment="Delimited Output Delimiter"/>
+        <column xsi:type="varchar" name="enclosure" nullable="false" length="8" default="&quot;" comment="Delimited Output Enclosure"/>
+        <column xsi:type="varchar" name="line_ending" nullable="false" length="16" default="LF" comment="Output Line Ending"/>
+        <column xsi:type="varchar" name="encoding" nullable="false" length="32" default="UTF-8" comment="Output Encoding"/>
+        <column xsi:type="varchar" name="compression" nullable="false" length="16" default="none" comment="Artifact Compression"/>
+        <column xsi:type="int" name="max_products_per_file" unsigned="true" nullable="false" default="0" comment="Maximum Products Per File"/>
+        <column xsi:type="bigint" name="max_bytes_per_file" unsigned="true" nullable="false" default="0" comment="Maximum Uncompressed Bytes Per File"/>
         <column xsi:type="mediumtext" name="conditions_serialized" nullable="true" comment="Product Filter Conditions"/>
+        <column xsi:type="text" name="include_category_ids" nullable="true" comment="Included Category IDs"/>
+        <column xsi:type="text" name="exclude_category_ids" nullable="true" comment="Excluded Category IDs"/>
+        <column xsi:type="smallint" name="include_category_descendants" unsigned="true" nullable="false" default="1" comment="Include Category Descendants"/>
+        <column xsi:type="smallint" name="include_disabled" unsigned="true" nullable="false" default="0" comment="Include Disabled Products"/>
+        <column xsi:type="varchar" name="visibility_values" nullable="false" length="64" default="2,3,4" comment="Allowed Visibility Values"/>
+        <column xsi:type="varchar" name="stock_policy" nullable="false" length="32" default="in_stock" comment="Stock Eligibility Policy"/>
         <column xsi:type="mediumtext" name="attributes_mapping_serialized" nullable="true" comment="Attributes Mapping"/>
+        <column xsi:type="mediumtext" name="conditional_values_serialized" nullable="true" comment="Conditional Mapping Values"/>
+        <column xsi:type="mediumtext" name="modifier_chains_serialized" nullable="true" comment="Ordered Modifier Chains"/>
+        <column xsi:type="varchar" name="configurable_strategy" nullable="false" length="32" default="parent" comment="Configurable Product Strategy"/>
+        <column xsi:type="varchar" name="bundle_strategy" nullable="false" length="32" default="parent" comment="Bundle Product Strategy"/>
+        <column xsi:type="varchar" name="grouped_strategy" nullable="false" length="32" default="parent" comment="Grouped Product Strategy"/>
+        <column xsi:type="smallint" name="include_virtual" unsigned="true" nullable="false" default="0" comment="Include Virtual Products"/>
+        <column xsi:type="smallint" name="include_downloadable" unsigned="true" nullable="false" default="0" comment="Include Downloadable Products"/>
         <column xsi:type="varchar" name="delivery_type" nullable="false" length="32" default="local" comment="Delivery Type"/>
         <column xsi:type="varchar" name="delivery_host" nullable="true" length="255" comment="Delivery Host"/>
         <column xsi:type="int" name="delivery_port" padding="5" unsigned="true" nullable="true" comment="Delivery Port"/>
         <column xsi:type="varchar" name="delivery_username" nullable="true" length="255" comment="Delivery Username"/>
         <column xsi:type="text" name="delivery_password" nullable="true" comment="Delivery Password"/>
         <column xsi:type="varchar" name="delivery_path" nullable="true" length="255" comment="Delivery Path"/>
+        <column xsi:type="int" name="delivery_timeout" unsigned="true" nullable="false" default="20" comment="Delivery Timeout Seconds"/>
+        <column xsi:type="smallint" name="ftp_passive" unsigned="true" nullable="false" default="1" comment="FTP Passive Mode"/>
+        <column xsi:type="varchar" name="remote_filename" nullable="true" length="255" comment="Remote Filename"/>
+        <column xsi:type="varchar" name="sftp_fingerprint" nullable="true" length="255" comment="SFTP Host Fingerprint"/>
         <column xsi:type="varchar" name="cron_expression" nullable="true" length="128" comment="Custom Cron Expression"/>
         <column xsi:type="varchar" name="frequency" nullable="true" length="32" comment="Cron Frequency"/>
         <column xsi:type="varchar" name="timezone" nullable="true" length="64" comment="Timezone"/>
         <column xsi:type="timestamp" name="next_run_at" nullable="true" comment="Next Scheduled Run"/>
         <column xsi:type="varchar" name="concurrency_policy" nullable="false" length="32" default="skip" comment="Concurrency Policy"/>
+        <column xsi:type="varchar" name="missed_run_policy" nullable="false" length="32" default="next" comment="Missed Run Policy"/>
         <column xsi:type="int" name="max_retries" padding="5" unsigned="true" nullable="false" default="3" comment="Max Retries"/>
         <column xsi:type="int" name="retry_count" padding="5" unsigned="true" nullable="false" default="0" comment="Current Retry Count"/>
         <column xsi:type="int" name="consecutive_failures" padding="5" unsigned="true" nullable="false" default="0" comment="Consecutive Failures Count"/>
@@ -42,7 +72,7 @@
 
     <table name="haerriz_google_shopping_feed_job" resource="default" engine="innodb" comment="Google Shopping Feed Jobs">
         <column xsi:type="int" name="job_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Job ID"/>
-        <column xsi:type="int" name="profile_id" padding="10" unsigned="true" nullable="false" comment="Profile ID"/>
+        <column xsi:type="int" name="profile_id" padding="10" unsigned="true" nullable="true" comment="Profile ID"/>
         <column xsi:type="varchar" name="status" nullable="false" length="50" default="pending" comment="Job Status"/>
         <column xsi:type="int" name="total_products" padding="10" unsigned="true" nullable="false" default="0" comment="Total Products"/>
         <column xsi:type="int" name="processed_products" padding="10" unsigned="true" nullable="false" default="0" comment="Processed Products"/>
@@ -70,7 +100,7 @@
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="job_id"/>
         </constraint>
-        <constraint xsi:type="foreign" referenceId="HAERRIZ_GSF_JOB_PROFILE_ID_PROFILE_PROFILE_ID" table="haerriz_google_shopping_feed_job" column="profile_id" referenceTable="haerriz_google_shopping_feed_profile" referenceColumn="profile_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="HAERRIZ_GSF_JOB_PROFILE_ID_PROFILE_PROFILE_ID" table="haerriz_google_shopping_feed_job" column="profile_id" referenceTable="haerriz_google_shopping_feed_profile" referenceColumn="profile_id" onDelete="SET NULL"/>
     </table>
 
     <table name="haerriz_google_shopping_feed_log" resource="default" engine="innodb" comment="Google Shopping Feed Logs">
