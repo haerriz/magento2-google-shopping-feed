@@ -29,6 +29,7 @@
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="haerriz_googleshoppingfeed_feed_listing_data_source" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile\Grid\Collection</item>
+                <item name="haerriz_googleshoppingfeed_job_listing_data_source" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob\Grid\Collection</item>
             </argument>
         </arguments>
     </type>
@@ -37,6 +38,13 @@
         <arguments>
             <argument name="mainTable" xsi:type="string">haerriz_google_shopping_feed_profile</argument>
             <argument name="resourceModel" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">haerriz_google_shopping_feed_job</argument>
+            <argument name="resourceModel" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob</argument>
         </arguments>
     </virtualType>
 

@@ -179,4 +179,104 @@ class FeedProfile extends AbstractModel implements FeedProfileInterface
     {
         return $this->setData(self::DELIVERY_PATH, $path);
     }
+
+    public function getCronExpression()
+    {
+        return $this->getData(self::CRON_EXPRESSION);
+    }
+
+    public function setCronExpression($cronExpression)
+    {
+        return $this->setData(self::CRON_EXPRESSION, $cronExpression);
+    }
+
+    public function getFrequency()
+    {
+        return $this->getData(self::FREQUENCY);
+    }
+
+    public function setFrequency($frequency)
+    {
+        return $this->setData(self::FREQUENCY, $frequency);
+    }
+
+    public function getTimezone()
+    {
+        return $this->getData(self::TIMEZONE);
+    }
+
+    public function setTimezone($timezone)
+    {
+        return $this->setData(self::TIMEZONE, $timezone);
+    }
+
+    public function getNextRunAt()
+    {
+        return $this->getData(self::NEXT_RUN_AT);
+    }
+
+    public function setNextRunAt($nextRunAt)
+    {
+        return $this->setData(self::NEXT_RUN_AT, $nextRunAt);
+    }
+
+    public function getConcurrencyPolicy()
+    {
+        return $this->getData(self::CONCURRENCY_POLICY);
+    }
+
+    public function setConcurrencyPolicy($concurrencyPolicy)
+    {
+        return $this->setData(self::CONCURRENCY_POLICY, $concurrencyPolicy);
+    }
+
+    public function getMaxRetries()
+    {
+        return (int)$this->getData(self::MAX_RETRIES);
+    }
+
+    public function setMaxRetries($maxRetries)
+    {
+        return $this->setData(self::MAX_RETRIES, $maxRetries);
+    }
+
+    public function getRetryCount()
+    {
+        return (int)$this->getData(self::RETRY_COUNT);
+    }
+
+    public function setRetryCount($retryCount)
+    {
+        return $this->setData(self::RETRY_COUNT, $retryCount);
+    }
+
+    public function getConsecutiveFailures()
+    {
+        return (int)$this->getData(self::CONSECUTIVE_FAILURES);
+    }
+
+    public function setConsecutiveFailures($consecutiveFailures)
+    {
+        return $this->setData(self::CONSECUTIVE_FAILURES, $consecutiveFailures);
+    }
+
+    public function getIsLocked()
+    {
+        return (int)$this->getData(self::IS_LOCKED);
+    }
+
+    public function setIsLocked($isLocked)
+    {
+        return $this->setData(self::IS_LOCKED, $isLocked);
+    }
+
+    public function getLockedAt()
+    {
+        return $this->getData(self::LOCKED_AT);
+    }
+
+    public function setLockedAt($lockedAt)
+    {
+        return $this->setData(self::LOCKED_AT, $lockedAt);
+    }
 }

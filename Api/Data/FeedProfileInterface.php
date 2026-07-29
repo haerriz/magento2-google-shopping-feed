@@ -21,6 +21,16 @@ interface FeedProfileInterface
     const DELIVERY_USERNAME = 'delivery_username';
     const DELIVERY_PASSWORD = 'delivery_password';
     const DELIVERY_PATH = 'delivery_path';
+    const CRON_EXPRESSION = 'cron_expression';
+    const FREQUENCY = 'frequency';
+    const TIMEZONE = 'timezone';
+    const NEXT_RUN_AT = 'next_run_at';
+    const CONCURRENCY_POLICY = 'concurrency_policy';
+    const MAX_RETRIES = 'max_retries';
+    const RETRY_COUNT = 'retry_count';
+    const CONSECUTIVE_FAILURES = 'consecutive_failures';
+    const IS_LOCKED = 'is_locked';
+    const LOCKED_AT = 'locked_at';
 
     /**
      * @return int|null
@@ -207,4 +217,114 @@ interface FeedProfileInterface
      * @return $this
      */
     public function setDeliveryPath($path);
+
+    /**
+     * @return string|null
+     */
+    public function getCronExpression();
+
+    /**
+     * @param string|null $cronExpression
+     * @return $this
+     */
+    public function setCronExpression($cronExpression);
+
+    /**
+     * @return string|null
+     */
+    public function getFrequency();
+
+    /**
+     * @param string|null $frequency
+     * @return $this
+     */
+    public function setFrequency($frequency);
+
+    /**
+     * @return string|null
+     */
+    public function getTimezone();
+
+    /**
+     * @param string|null $timezone
+     * @return $this
+     */
+    public function setTimezone($timezone);
+
+    /**
+     * @return string|null
+     */
+    public function getNextRunAt();
+
+    /**
+     * @param string|null $nextRunAt
+     * @return $this
+     */
+    public function setNextRunAt($nextRunAt);
+
+    /**
+     * @return string|null
+     */
+    public function getConcurrencyPolicy();
+
+    /**
+     * @param string $concurrencyPolicy
+     * @return $this
+     */
+    public function setConcurrencyPolicy($concurrencyPolicy);
+
+    /**
+     * @return int
+     */
+    public function getMaxRetries();
+
+    /**
+     * @param int $maxRetries
+     * @return $this
+     */
+    public function setMaxRetries($maxRetries);
+
+    /**
+     * @return int
+     */
+    public function getRetryCount();
+
+    /**
+     * @param int $retryCount
+     * @return $this
+     */
+    public function setRetryCount($retryCount);
+
+    /**
+     * @return int
+     */
+    public function getConsecutiveFailures();
+
+    /**
+     * @param int $consecutiveFailures
+     * @return $this
+     */
+    public function setConsecutiveFailures($consecutiveFailures);
+
+    /**
+     * @return int
+     */
+    public function getIsLocked();
+
+    /**
+     * @param int $isLocked
+     * @return $this
+     */
+    public function setIsLocked($isLocked);
+
+    /**
+     * @return string|null
+     */
+    public function getLockedAt();
+
+    /**
+     * @param string|null $lockedAt
+     * @return $this
+     */
+    public function setLockedAt($lockedAt);
 }

@@ -29,6 +29,12 @@ All notable changes to this project will be documented in this file.
 - **Phase 5**: Added AJAX conditions controller (`Controller/Adminhtml/Feed/Conditions`) to dynamically fetch condition lists.
 - **Phase 5**: Wired conditions saving/serialization inside Save controller.
 - **Phase 5**: Hooked rule validations directly into paginated product collections during CSV/XML feed generations.
+- **Phase 7**: Added scheduling columns to declarative schema (`db_schema.xml`).
+- **Phase 7**: Built dynamic timezone-aware `Scheduler` tool computing next run timestamps for hourly/daily/weekly/monthly/custom cron tasks.
+- **Phase 7**: Implemented robust dynamic scheduling locks, concurrency rules, stale job recovery, retries, and failure auto-disabling.
+- **Phase 7**: Merged execution status and error tracking directly into the db logger tables (`haerriz_google_shopping_feed_log`).
+- **Phase 7**: Built execution logs custom handler (`Model/FeedLogHandler.php`) and dynamic admin grid component (`haerriz_googleshoppingfeed_job_listing.xml`).
+- **Phase 7**: Developed Schedule actions controller (`Trigger.php`) to execute manual runs/enables/disables directly from the admin workspace.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.
