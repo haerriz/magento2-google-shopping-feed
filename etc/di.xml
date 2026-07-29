@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfile"/>
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfileRepository"/>
+
+    <!-- UI Component Data Source Registration -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="haerriz_googleshoppingfeed_feed_listing_data_source" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">haerriz_google_shopping_feed_profile</argument>
+            <argument name="resourceModel" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Haerriz\GoogleShoppingFeed\Model\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="strip_tags" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\StripTags</item>
+                <item name="round_price" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\RoundPrice</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
