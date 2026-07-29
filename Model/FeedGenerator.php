@@ -98,6 +98,11 @@ class FeedGenerator
     private $feedExporter;
 
     /**
+     * @var ProfileValidator
+     */
+    private $profileValidator;
+
+    /**
      * @param ProductCollectionFactory $productCollectionFactory
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
@@ -120,7 +125,8 @@ class FeedGenerator
         JobResource $jobResource,
         \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder,
         Sanitizer $sanitizer,
-        FeedExporter $feedExporter
+        FeedExporter $feedExporter,
+        ProfileValidator $profileValidator
     ) {
         $this->productProvider = $productProvider;
         $this->productTypeResolver = $productTypeResolver;
@@ -134,6 +140,7 @@ class FeedGenerator
         $this->utmBuilder = $utmBuilder;
         $this->sanitizer = $sanitizer;
         $this->feedExporter = $feedExporter;
+        $this->profileValidator = $profileValidator;
     }
 
     public function generate(FeedProfileInterface $profile, $triggerSource = 'cron')
@@ -143,8 +150,10 @@ class FeedGenerator
         $filename = $profile->getFilename();
         $correlationId = bin2hex(random_bytes(16));
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
-        $localPath = 'google_feed/' . $filename;
-        $temporaryPath = 'google_feed/.' . $filename . '.' . $correlationId . '.tmp';
+        $profileDirectory = 'google_feed/profile_' . (int)$profile->getId();
+        $directory->create($profileDirectory);
+        $localPath = $profileDirectory . '/' . $filename;
+        $temporaryPath = $profileDirectory . '/.' . $filename . '.' . $correlationId . '.tmp';
         $result = false;
         $generated = false;
 
@@ -161,6 +170,7 @@ class FeedGenerator
         $this->jobResource->save($job);
 
         try {
+            $this->profileValidator->assertValid($profile);
             $this->feedExporter->export($profile, $temporaryPath, $job);
 
             $directory->renameFile($temporaryPath, $localPath);

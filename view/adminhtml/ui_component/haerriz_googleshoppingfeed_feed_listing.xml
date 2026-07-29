@@ -31,6 +31,53 @@
             </argument>
         </argument>
     </dataSource>
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction">
+            <action name="enable">
+                <settings>
+                    <confirm>
+                        <message translate="true">Enable the selected profiles?</message>
+                        <title translate="true">Enable profiles</title>
+                    </confirm>
+                    <url path="haerriz_googleshoppingfeed/feed/massStatus">
+                        <param name="action">enable</param>
+                    </url>
+                    <type>enable</type>
+                    <label translate="true">Enable</label>
+                </settings>
+            </action>
+            <action name="disable">
+                <settings>
+                    <url path="haerriz_googleshoppingfeed/feed/massStatus">
+                        <param name="action">disable</param>
+                    </url>
+                    <type>disable</type>
+                    <label translate="true">Disable</label>
+                </settings>
+            </action>
+            <action name="generate">
+                <settings>
+                    <url path="haerriz_googleshoppingfeed/feed/massGenerate"/>
+                    <type>generate</type>
+                    <label translate="true">Generate</label>
+                </settings>
+            </action>
+            <action name="delete">
+                <settings>
+                    <confirm>
+                        <message translate="true">Delete the selected profiles? Job history will be retained.</message>
+                        <title translate="true">Delete profiles</title>
+                    </confirm>
+                    <url path="haerriz_googleshoppingfeed/feed/massStatus">
+                        <param name="action">delete</param>
+                    </url>
+                    <type>delete</type>
+                    <label translate="true">Delete</label>
+                </settings>
+            </action>
+        </massaction>
+        <paging name="listing_paging"/>
+    </listingToolbar>
     <columns name="haerriz_googleshoppingfeed_feed_columns">
         <selectionsColumn name="ids">
             <argument name="data" xsi:type="array">
