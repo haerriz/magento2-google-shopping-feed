@@ -42,6 +42,11 @@ All notable changes to this project will be documented in this file.
 - **Phase 9**: Implemented exponential backoff with random jitter for transient errors in `ErrorHandler.php`.
 - **Phase 9**: Built `StatusReconciliation.php` to fetch issues and disapprovals directly from Google Merchant Center APIs.
 - **Phase 9**: Removed legacy dummy sync client file `MerchantClient.php`.
+- **Phase 10**: Added tracking metadata columns (trigger_source, exported_count, skipped_count, file_size, duration, checksums) to `db_schema.xml`.
+- **Phase 10**: Developed secure log `Sanitizer.php` redacting passwords and service account keys.
+- **Phase 10**: Created `JobManager.php` allowing manual cancellation and safe cron retention cleanups preserving active/latest successful files.
+- **Phase 10**: Updated `FeedGenerator.php` to calculate and populate job run counters, size, and MD5 file checksums.
+- **Phase 10**: Updated UI layout component `haerriz_googleshoppingfeed_job_listing.xml` to expose metrics and counts.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.
