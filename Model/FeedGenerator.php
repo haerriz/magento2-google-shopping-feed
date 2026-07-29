@@ -10,11 +10,34 @@ use Haerriz\GoogleShoppingFeed\Model\Modifier\Pool as ModifierPool;
 
 class FeedGenerator
 {
+    const BATCH_SIZE = 500;
+
+    /**
+     * @var ProductCollectionFactory
+     */
     protected $productCollectionFactory;
+
+    /**
+     * @var Filesystem
+     */
     protected $filesystem;
+
+    /**
+     * @var StoreManagerInterface
+     */
     protected $storeManager;
+
+    /**
+     * @var ModifierPool
+     */
     protected $modifierPool;
 
+    /**
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param Filesystem $filesystem
+     * @param StoreManagerInterface $storeManager
+     * @param ModifierPool $modifierPool
+     */
     public function __construct(
         ProductCollectionFactory $productCollectionFactory,
         Filesystem $filesystem,
@@ -27,38 +50,51 @@ class FeedGenerator
         $this->modifierPool = $modifierPool;
     }
 
+    /**
+     * Generate feed
+     *
+     * @param FeedProfileInterface $profile
+     * @return bool
+     */
     public function generate(FeedProfileInterface $profile)
     {
         $storeId = $profile->getStoreId();
         $this->storeManager->setCurrentStore($storeId);
 
-        $collection = $this->productCollectionFactory->create();
-        $collection->addAttributeToSelect('*');
-        $collection->addStoreFilter($storeId);
-
-        // Apply filters based on profile conditions
-        $this->applyFilters($collection, $profile);
-
         $type = $profile->getFeedType();
         $filename = $profile->getFilename();
 
         if ($type === 'csv') {
-            return $this->generateCsv($collection, $profile, $filename);
+            return $this->generateCsv($profile, $filename);
         } else {
-            return $this->generateXml($collection, $profile, $filename);
+            return $this->generateXml($profile, $filename);
         }
     }
 
-    protected function applyFilters($collection, $profile)
+    /**
+     * Get base product collection with filters
+     *
+     * @param int $storeId
+     * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
+     */
+    protected function getProductCollection($storeId)
     {
-        // Add basic filters (in stock, enabled, visible)
+        $collection = $this->productCollectionFactory->create();
+        $collection->addAttributeToSelect('*');
+        $collection->addStoreFilter($storeId);
         $collection->addAttributeToFilter('status', \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
         $collection->addAttributeToFilter('visibility', ['neq' => \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE]);
-        
-        // Custom rule processing would go here
+        return $collection;
     }
 
-    protected function generateCsv($collection, $profile, $filename)
+    /**
+     * Generate CSV feed with batching and streaming
+     *
+     * @param FeedProfileInterface $profile
+     * @param string $filename
+     * @return bool
+     */
+    protected function generateCsv(FeedProfileInterface $profile, $filename)
     {
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $stream = $directory->openFile('google_feed/' . $filename, 'w+');
@@ -66,22 +102,37 @@ class FeedGenerator
 
         $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
         
-        // Headers
+        // Write CSV Headers
         $headers = [];
         foreach ($mapping as $map) {
             $headers[] = $map['google_attribute'];
         }
         $stream->writeCsv($headers);
 
-        // Rows
-        foreach ($collection as $product) {
-            $row = [];
-            foreach ($mapping as $map) {
-                $value = $product->getData($map['magento_attribute']);
-                $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
-                $row[] = $value;
+        // Paginate and process products
+        $page = 1;
+        $storeId = $profile->getStoreId();
+        
+        while (true) {
+            $collection = $this->getProductCollection($storeId);
+            $collection->setPage($page, self::BATCH_SIZE);
+            
+            if ($collection->count() === 0) {
+                break;
             }
-            $stream->writeCsv($row);
+
+            foreach ($collection as $product) {
+                $row = [];
+                foreach ($mapping as $map) {
+                    $value = $product->getData($map['magento_attribute']);
+                    $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
+                    $row[] = $value;
+                }
+                $stream->writeCsv($row);
+            }
+
+            $collection->clear();
+            $page++;
         }
 
         $stream->unlock();
@@ -89,40 +140,76 @@ class FeedGenerator
         return true;
     }
 
-    protected function generateXml($collection, $profile, $filename)
+    /**
+     * Generate XML feed with batching and streaming
+     *
+     * @param FeedProfileInterface $profile
+     * @param string $filename
+     * @return bool
+     */
+    protected function generateXml(FeedProfileInterface $profile, $filename)
     {
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
-        
-        $xmlContent = '<?xml version="1.0"?>' . "\n";
-        $xmlContent .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
-        $xmlContent .= '<channel>' . "\n";
-        $xmlContent .= '<title><![CDATA[' . $profile->getName() . ']]></title>' . "\n";
-        $xmlContent .= '<link><![CDATA[' . $this->storeManager->getStore()->getBaseUrl() . ']]></link>' . "\n";
-        
-        $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
-        
-        foreach ($collection as $product) {
-            $xmlContent .= "  <item>\n";
-            foreach ($mapping as $map) {
-                $googleTag = $map['google_attribute'];
-                $value = $product->getData($map['magento_attribute']);
-                $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
-                
-                // Skip empty values unless required
-                if ($value !== null && $value !== '') {
-                    $xmlContent .= "    <{$googleTag}><![CDATA[{$value}]]></{$googleTag}>\n";
-                }
-            }
-            $xmlContent .= "  </item>\n";
-        }
-        
-        $xmlContent .= '</channel>' . "\n";
-        $xmlContent .= '</rss>';
+        $stream = $directory->openFile('google_feed/' . $filename, 'w+');
+        $stream->lock();
 
-        $directory->writeFile('google_feed/' . $filename, $xmlContent);
+        // Write XML Header
+        $xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xmlHeader .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
+        $xmlHeader .= '<channel>' . "\n";
+        $xmlHeader .= '<title><![CDATA[' . $profile->getName() . ']]></title>' . "\n";
+        $xmlHeader .= '<link><![CDATA[' . $this->storeManager->getStore()->getBaseUrl() . ']]></link>' . "\n";
+        $stream->write($xmlHeader);
+
+        $mapping = json_decode($profile->getAttributesMappingSerialized(), true) ?? [];
+        $page = 1;
+        $storeId = $profile->getStoreId();
+
+        while (true) {
+            $collection = $this->getProductCollection($storeId);
+            $collection->setPage($page, self::BATCH_SIZE);
+
+            if ($collection->count() === 0) {
+                break;
+            }
+
+            foreach ($collection as $product) {
+                $xmlItem = "  <item>\n";
+                foreach ($mapping as $map) {
+                    $googleTag = $map['google_attribute'];
+                    $value = $product->getData($map['magento_attribute']);
+                    $value = $this->applyModifier($value, $map['modifier'] ?? '', $product);
+
+                    if ($value !== null && $value !== '') {
+                        $xmlItem .= "    <{$googleTag}><![CDATA[{$value}]]></{$googleTag}>\n";
+                    }
+                }
+                $xmlItem .= "  </item>\n";
+                $stream->write($xmlItem);
+            }
+
+            $collection->clear();
+            $page++;
+        }
+
+        // Write XML Footer
+        $xmlFooter = '</channel>' . "\n";
+        $xmlFooter .= '</rss>';
+        $stream->write($xmlFooter);
+
+        $stream->unlock();
+        $stream->close();
         return true;
     }
 
+    /**
+     * Apply modifiers
+     *
+     * @param string $value
+     * @param string $modifierCode
+     * @param \Magento\Catalog\Model\Product $product
+     * @return string
+     */
     protected function applyModifier($value, $modifierCode, $product)
     {
         return $this->modifierPool->apply($value, $modifierCode, $product);

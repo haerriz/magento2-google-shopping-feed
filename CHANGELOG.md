@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 - **Phase 2**: Secure config reader (`Model/Config`) implemented with memory caching.
 - **Phase 2**: Dedicated system logger channel (`var/log/haerriz_googleshoppingfeed.log`) configured via custom Monolog integration.
 - **Phase 2**: Enforced strict input validation on Google Merchant Center ID in configuration backend.
+- **Phase 3**: Refactored `FeedGenerator` with collection pagination to process catalogs in batch sizes of 500.
+- **Phase 3**: Replaced full-string in-memory XML accumulation with structured chunk streaming directly to target files.
+- **Phase 3**: Implemented PHPUnit coverage for streaming validation.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.
