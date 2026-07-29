@@ -35,6 +35,13 @@ All notable changes to this project will be documented in this file.
 - **Phase 7**: Merged execution status and error tracking directly into the db logger tables (`haerriz_google_shopping_feed_log`).
 - **Phase 7**: Built execution logs custom handler (`Model/FeedLogHandler.php`) and dynamic admin grid component (`haerriz_googleshoppingfeed_job_listing.xml`).
 - **Phase 7**: Developed Schedule actions controller (`Trigger.php`) to execute manual runs/enables/disables directly from the admin workspace.
+- **Phase 9**: Required official PHP SDKs `google/shopping-merchant-products` and `google/shopping-merchant-datasources` in `composer.json`.
+- **Phase 9**: Created dynamic OAuth2 service client wrapper `MerchantClientV1.php` using ServiceAccount credentials.
+- **Phase 9**: Created dynamic datasource provisions locator `DataSourceManager.php` using primary API data sources.
+- **Phase 9**: Developed `ProductSynchronizer.php` converting Magento products to `ProductInput` resources with patch mask updates and deletes.
+- **Phase 9**: Implemented exponential backoff with random jitter for transient errors in `ErrorHandler.php`.
+- **Phase 9**: Built `StatusReconciliation.php` to fetch issues and disapprovals directly from Google Merchant Center APIs.
+- **Phase 9**: Removed legacy dummy sync client file `MerchantClient.php`.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.
