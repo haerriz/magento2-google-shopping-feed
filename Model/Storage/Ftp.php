@@ -2,10 +2,10 @@
 namespace Haerriz\GoogleShoppingFeed\Model\Storage;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
+use Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\Ftp as FtpIo;
-use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Exception\LocalizedException;
 
 class Ftp implements AdapterInterface
@@ -21,7 +21,7 @@ class Ftp implements AdapterInterface
     protected $ftpIo;
 
     /**
-     * @var EncryptorInterface
+     * @var CredentialProviderInterface
      */
     protected $encryptor;
 
@@ -33,11 +33,11 @@ class Ftp implements AdapterInterface
     public function __construct(
         Filesystem $filesystem,
         FtpIo $ftpIo,
-        EncryptorInterface $encryptor
+        CredentialProviderInterface $credentialProvider
     ) {
         $this->filesystem = $filesystem;
         $this->ftpIo = $ftpIo;
-        $this->encryptor = $encryptor;
+        $this->encryptor = $credentialProvider;
     }
 
     /**
@@ -84,7 +84,7 @@ class Ftp implements AdapterInterface
 
             return true;
         } catch (\Exception $e) {
-            throw new LocalizedException(__('FTP Upload Error: %1', $e->getMessage()), $e);
+            throw new LocalizedException(__('FTP upload failed. Verify the connection settings.'), $e);
         }
     }
 }

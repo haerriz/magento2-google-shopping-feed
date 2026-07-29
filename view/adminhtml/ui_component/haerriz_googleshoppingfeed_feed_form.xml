@@ -268,6 +268,23 @@
                     <item name="formElement" xsi:type="string">input</item>
                     <item name="source" xsi:type="string">profile</item>
                     <item name="sortOrder" xsi:type="number">50</item>
+                    <item name="notice" xsi:type="string" translate="true">Leave blank to keep the saved password.</item>
+                </item>
+            </argument>
+        </field>
+        <field name="clear_delivery_password">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">boolean</item>
+                    <item name="label" xsi:type="string" translate="true">Clear Saved Password</item>
+                    <item name="formElement" xsi:type="string">checkbox</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="false" xsi:type="number">0</item>
+                        <item name="true" xsi:type="number">1</item>
+                    </item>
+                    <item name="source" xsi:type="string">profile</item>
+                    <item name="sortOrder" xsi:type="number">55</item>
                 </item>
             </argument>
         </field>

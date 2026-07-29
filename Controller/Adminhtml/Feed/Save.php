@@ -4,11 +4,11 @@ namespace Haerriz\GoogleShoppingFeed\Controller\Adminhtml\Feed;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
+use Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface;
 use Haerriz\GoogleShoppingFeed\Model\FeedProfileFactory;
 
-use Magento\Framework\Encryption\EncryptorInterface;
-
 use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
+use Haerriz\GoogleShoppingFeed\Model\Logger\Sanitizer;
 
 class Save extends Action
 {
@@ -16,21 +16,24 @@ class Save extends Action
 
     protected $repository;
     protected $factory;
-    protected $encryptor;
+    protected $credentialProvider;
     protected $ruleFactory;
+    protected $sanitizer;
 
     public function __construct(
         Context $context,
         FeedProfileRepositoryInterface $repository,
         FeedProfileFactory $factory,
-        EncryptorInterface $encryptor,
-        RuleFactory $ruleFactory
+        CredentialProviderInterface $credentialProvider,
+        RuleFactory $ruleFactory,
+        Sanitizer $sanitizer
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->factory = $factory;
-        $this->encryptor = $encryptor;
+        $this->credentialProvider = $credentialProvider;
         $this->ruleFactory = $ruleFactory;
+        $this->sanitizer = $sanitizer;
     }
 
     public function execute()
@@ -46,7 +49,9 @@ class Save extends Action
                 // Validate filename for path traversal and extension
                 if (isset($data['filename'])) {
                     $filename = basename($data['filename']);
-                    if (!preg_match('/\.(xml|csv|txt|tsv|jsonl)$/i', $filename)) {
+                    if ($filename !== $data['filename']
+                        || !preg_match('/\.(xml|csv|txt|tsv|jsonl)$/i', $filename)
+                    ) {
                         throw new \Exception('Invalid filename extension.');
                     }
                     $data['filename'] = $filename;
@@ -79,8 +84,12 @@ class Save extends Action
                 if (isset($data['delivery_username'])) $model->setDeliveryUsername($data['delivery_username']);
                 if (isset($data['delivery_path'])) $model->setDeliveryPath($data['delivery_path']);
 
-                if (!empty($data['delivery_password'])) {
-                    $model->setDeliveryPassword($this->encryptor->encrypt($data['delivery_password']));
+                if (!empty($data['clear_delivery_password'])) {
+                    $model->setDeliveryPassword(null);
+                } elseif (isset($data['delivery_password']) && trim((string)$data['delivery_password']) !== '') {
+                    $model->setDeliveryPassword(
+                        $this->credentialProvider->encrypt((string)$data['delivery_password'])
+                    );
                 }
                 
                 $model->setAttributesMappingSerialized($data['attributes_mapping_serialized'] ?? null);
@@ -94,7 +103,7 @@ class Save extends Action
                 }
                 return $resultRedirect->setPath('*/*/');
             } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+                $this->messageManager->addErrorMessage($this->sanitizer->sanitize($e->getMessage()));
                 return $resultRedirect->setPath('*/*/edit', ['id' => $id]);
             }
         }

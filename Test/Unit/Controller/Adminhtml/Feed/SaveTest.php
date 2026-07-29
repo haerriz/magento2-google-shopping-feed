@@ -11,6 +11,9 @@ use Magento\Framework\Message\ManagerInterface;
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
 use Haerriz\GoogleShoppingFeed\Model\FeedProfileFactory;
 use Haerriz\GoogleShoppingFeed\Model\FeedProfile;
+use Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface;
+use Haerriz\GoogleShoppingFeed\Model\Logger\Sanitizer;
+use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
 
 class SaveTest extends TestCase
 {
@@ -45,7 +48,10 @@ class SaveTest extends TestCase
         $this->controller = new Save(
             $this->contextMock,
             $this->repositoryMock,
-            $this->factoryMock
+            $this->factoryMock,
+            $this->createMock(CredentialProviderInterface::class),
+            $this->createMock(RuleFactory::class),
+            new Sanitizer()
         );
     }
 

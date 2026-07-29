@@ -2,10 +2,10 @@
 namespace Haerriz\GoogleShoppingFeed\Model\Storage;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
+use Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Io\Sftp as SftpIo;
-use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Exception\LocalizedException;
 
 class Sftp implements AdapterInterface
@@ -21,7 +21,7 @@ class Sftp implements AdapterInterface
     protected $sftpIo;
 
     /**
-     * @var EncryptorInterface
+     * @var CredentialProviderInterface
      */
     protected $encryptor;
 
@@ -33,11 +33,11 @@ class Sftp implements AdapterInterface
     public function __construct(
         Filesystem $filesystem,
         SftpIo $sftpIo,
-        EncryptorInterface $encryptor
+        CredentialProviderInterface $credentialProvider
     ) {
         $this->filesystem = $filesystem;
         $this->sftpIo = $sftpIo;
-        $this->encryptor = $encryptor;
+        $this->encryptor = $credentialProvider;
     }
 
     /**
@@ -84,7 +84,7 @@ class Sftp implements AdapterInterface
 
             return true;
         } catch (\Exception $e) {
-            throw new LocalizedException(__('SFTP Upload Error: %1', $e->getMessage()), $e);
+            throw new LocalizedException(__('SFTP upload failed. Verify the connection settings.'), $e);
         }
     }
 }

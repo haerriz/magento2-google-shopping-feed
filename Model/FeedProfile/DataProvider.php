@@ -30,6 +30,7 @@ class DataProvider extends AbstractDataProvider
         $items = $this->collection->getItems();
         foreach ($items as $model) {
             $data = $model->getData();
+            unset($data['delivery_password']);
             
             // Enterprise Feature: Deserialize dynamic rows data
             if (!empty($data['attributes_mapping_serialized'])) {
