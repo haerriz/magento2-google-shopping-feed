@@ -2,7 +2,7 @@
 namespace Haerriz\GoogleShoppingFeed\Model;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
-use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Store\Model\StoreManagerInterface;
@@ -19,9 +19,9 @@ class FeedGenerator
     const BATCH_SIZE = 500;
 
     /**
-     * @var ProductCollectionFactory
+     * @var ProductProviderInterface
      */
-    protected $productCollectionFactory;
+    protected $productProvider;
 
     /**
      * @var Filesystem
@@ -49,7 +49,7 @@ class FeedGenerator
     protected $ruleFactory;
 
     /**
-     * @param ProductCollectionFactory $productCollectionFactory
+     * @param ProductProviderInterface $productProvider
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
      * @param ModifierPool $modifierPool
@@ -98,7 +98,7 @@ class FeedGenerator
      * @param \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder
      */
     public function __construct(
-        ProductCollectionFactory $productCollectionFactory,
+        ProductProviderInterface $productProvider,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager,
         ModifierPool $modifierPool,
@@ -109,7 +109,7 @@ class FeedGenerator
         \Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder $utmBuilder,
         Sanitizer $sanitizer
     ) {
-        $this->productCollectionFactory = $productCollectionFactory;
+        $this->productProvider = $productProvider;
         $this->filesystem = $filesystem;
         $this->storeManager = $storeManager;
         $this->modifierPool = $modifierPool;
@@ -210,22 +210,12 @@ class FeedGenerator
     /**
      * Get base product collection with filters
      *
-     * @param int $storeId
+     * @param FeedProfileInterface $profile
      * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
-    protected function getProductCollection($storeId, $rule = null)
+    protected function getProductCollection(FeedProfileInterface $profile, $rule = null)
     {
-        $collection = $this->productCollectionFactory->create();
-        $collection->addAttributeToSelect(['sku', 'name', 'price', 'special_price', 'image']);
-        $collection->addStoreFilter($storeId);
-        $collection->addAttributeToFilter('status', \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
-        $collection->addAttributeToFilter('visibility', ['neq' => \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE]);
-        
-        if ($rule) {
-            $rule->getConditions()->collectValidatedAttributes($collection);
-        }
-        
-        return $collection;
+        return $this->productProvider->getCollection($profile, $rule, 0, self::BATCH_SIZE);
     }
 
     /**
@@ -264,15 +254,13 @@ class FeedGenerator
 
         // Paginate and process products
         $lastEntityId = 0;
-        $storeId = $profile->getStoreId();
-        
         $selected = 0;
         $processed = 0;
         $exported = 0;
         $skipped = 0;
 
         // Get total catalog count for selected
-        $totalCollection = $this->getProductCollection($storeId, $rule);
+        $totalCollection = $this->getProductCollection($profile, $rule);
         $selected = $totalCollection->getSize();
         if ($job) {
             $job->setSelectedCount($selected);
@@ -280,10 +268,12 @@ class FeedGenerator
         }
 
         while (true) {
-            $collection = $this->getProductCollection($storeId, $rule);
-            $collection->addFieldToFilter('entity_id', ['gt' => $lastEntityId]);
-            $collection->setOrder('entity_id', 'ASC');
-            $collection->setPageSize(self::BATCH_SIZE);
+            $collection = $this->productProvider->getCollection(
+                $profile,
+                $rule,
+                $lastEntityId,
+                self::BATCH_SIZE
+            );
             
             if ($collection->count() === 0) {
                 break;
@@ -364,15 +354,13 @@ class FeedGenerator
         }
 
         $lastEntityId = 0;
-        $storeId = $profile->getStoreId();
-
         $selected = 0;
         $processed = 0;
         $exported = 0;
         $skipped = 0;
 
         // Get total catalog count for selected
-        $totalCollection = $this->getProductCollection($storeId, $rule);
+        $totalCollection = $this->getProductCollection($profile, $rule);
         $selected = $totalCollection->getSize();
         if ($job) {
             $job->setSelectedCount($selected);
@@ -380,10 +368,12 @@ class FeedGenerator
         }
 
         while (true) {
-            $collection = $this->getProductCollection($storeId, $rule);
-            $collection->addFieldToFilter('entity_id', ['gt' => $lastEntityId]);
-            $collection->setOrder('entity_id', 'ASC');
-            $collection->setPageSize(self::BATCH_SIZE);
+            $collection = $this->productProvider->getCollection(
+                $profile,
+                $rule,
+                $lastEntityId,
+                self::BATCH_SIZE
+            );
 
             if ($collection->count() === 0) {
                 break;
