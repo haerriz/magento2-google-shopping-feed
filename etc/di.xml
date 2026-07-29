@@ -49,4 +49,14 @@
         </arguments>
     </type>
 
+    <type name="Haerriz\GoogleShoppingFeed\Model\Storage\AdapterPool">
+        <arguments>
+            <argument name="adapters" xsi:type="array">
+                <item name="local" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Storage\Local</item>
+                <item name="ftp" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Storage\Ftp</item>
+                <item name="sftp" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Storage\Sftp</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>

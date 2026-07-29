@@ -18,6 +18,12 @@ All notable changes to this project will be documented in this file.
 - **Phase 3**: Refactored `FeedGenerator` with collection pagination to process catalogs in batch sizes of 500.
 - **Phase 3**: Replaced full-string in-memory XML accumulation with structured chunk streaming directly to target files.
 - **Phase 3**: Implemented PHPUnit coverage for streaming validation.
+- **Phase 4**: Added `delivery_*` columns in `db_schema.xml` to support local, FTP, and SFTP endpoints.
+- **Phase 4**: Expanded `FeedProfile` model and interface to support delivery credentials.
+- **Phase 4**: Encrypted remote delivery passwords using Magento's core `EncryptorInterface` at the Controller layer.
+- **Phase 4**: Implemented dynamic delivery field toggling in Admin Feed Edit UI.
+- **Phase 4**: Created modular delivery storage system with `Local`, `Ftp`, and `Sftp` storage adapters and `AdapterPool`.
+- **Phase 4**: Leveraged Magento's native `Ftp`/`Sftp` filesystem utilities for reliable file uploading.
 
 ### Changed
 - `composer.json` dependencies locked to specific Magento `~103.0`/`~104.0` framework versions.

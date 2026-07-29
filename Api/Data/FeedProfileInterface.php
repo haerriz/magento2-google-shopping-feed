@@ -15,6 +15,12 @@ interface FeedProfileInterface
     const UPDATED_AT = 'updated_at';
 
     const CURRENCY = 'currency';
+    const DELIVERY_TYPE = 'delivery_type';
+    const DELIVERY_HOST = 'delivery_host';
+    const DELIVERY_PORT = 'delivery_port';
+    const DELIVERY_USERNAME = 'delivery_username';
+    const DELIVERY_PASSWORD = 'delivery_password';
+    const DELIVERY_PATH = 'delivery_path';
 
     /**
      * @return int|null
@@ -136,4 +142,69 @@ interface FeedProfileInterface
      * @return $this
      */
     public function setUpdatedAt($updatedAt);
+    /**
+     * @return string|null
+     */
+    public function getDeliveryType();
+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function setDeliveryType($type);
+
+    /**
+     * @return string|null
+     */
+    public function getDeliveryHost();
+
+    /**
+     * @param string $host
+     * @return $this
+     */
+    public function setDeliveryHost($host);
+
+    /**
+     * @return int|null
+     */
+    public function getDeliveryPort();
+
+    /**
+     * @param int $port
+     * @return $this
+     */
+    public function setDeliveryPort($port);
+
+    /**
+     * @return string|null
+     */
+    public function getDeliveryUsername();
+
+    /**
+     * @param string $username
+     * @return $this
+     */
+    public function setDeliveryUsername($username);
+
+    /**
+     * @return string|null
+     */
+    public function getDeliveryPassword();
+
+    /**
+     * @param string $password
+     * @return $this
+     */
+    public function setDeliveryPassword($password);
+
+    /**
+     * @return string|null
+     */
+    public function getDeliveryPath();
+
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function setDeliveryPath($path);
 }

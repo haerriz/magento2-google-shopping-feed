@@ -6,21 +6,26 @@ use Magento\Backend\App\Action\Context;
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
 use Haerriz\GoogleShoppingFeed\Model\FeedProfileFactory;
 
+use Magento\Framework\Encryption\EncryptorInterface;
+
 class Save extends Action
 {
     const ADMIN_RESOURCE = 'Haerriz_GoogleShoppingFeed::feed_profiles';
 
     protected $repository;
     protected $factory;
+    protected $encryptor;
 
     public function __construct(
         Context $context,
         FeedProfileRepositoryInterface $repository,
-        FeedProfileFactory $factory
+        FeedProfileFactory $factory,
+        EncryptorInterface $encryptor
     ) {
         parent::__construct($context);
         $this->repository = $repository;
         $this->factory = $factory;
+        $this->encryptor = $encryptor;
     }
 
     public function execute()
@@ -55,6 +60,16 @@ class Save extends Action
                 if (isset($data['currency'])) $model->setCurrency($data['currency']);
                 if (isset($data['filename'])) $model->setFilename($data['filename']);
                 if (isset($data['feed_type'])) $model->setFeedType($data['feed_type']);
+
+                if (isset($data['delivery_type'])) $model->setDeliveryType($data['delivery_type']);
+                if (isset($data['delivery_host'])) $model->setDeliveryHost($data['delivery_host']);
+                if (isset($data['delivery_port'])) $model->setDeliveryPort((int)$data['delivery_port']);
+                if (isset($data['delivery_username'])) $model->setDeliveryUsername($data['delivery_username']);
+                if (isset($data['delivery_path'])) $model->setDeliveryPath($data['delivery_path']);
+
+                if (!empty($data['delivery_password'])) {
+                    $model->setDeliveryPassword($this->encryptor->encrypt($data['delivery_password']));
+                }
                 
                 $model->setAttributesMappingSerialized($data['attributes_mapping_serialized'] ?? null);
                 $model->setConditionsSerialized($data['conditions_serialized'] ?? null);

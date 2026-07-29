@@ -8,6 +8,8 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Store\Model\StoreManagerInterface;
 use Haerriz\GoogleShoppingFeed\Model\Modifier\Pool as ModifierPool;
 
+use Haerriz\GoogleShoppingFeed\Model\Storage\AdapterPool;
+
 class FeedGenerator
 {
     const BATCH_SIZE = 500;
@@ -33,21 +35,29 @@ class FeedGenerator
     protected $modifierPool;
 
     /**
+     * @var AdapterPool
+     */
+    protected $adapterPool;
+
+    /**
      * @param ProductCollectionFactory $productCollectionFactory
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
      * @param ModifierPool $modifierPool
+     * @param AdapterPool $adapterPool
      */
     public function __construct(
         ProductCollectionFactory $productCollectionFactory,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager,
-        ModifierPool $modifierPool
+        ModifierPool $modifierPool,
+        AdapterPool $adapterPool
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->filesystem = $filesystem;
         $this->storeManager = $storeManager;
         $this->modifierPool = $modifierPool;
+        $this->adapterPool = $adapterPool;
     }
 
     /**
@@ -65,10 +75,19 @@ class FeedGenerator
         $filename = $profile->getFilename();
 
         if ($type === 'csv') {
-            return $this->generateCsv($profile, $filename);
+            $result = $this->generateCsv($profile, $filename);
         } else {
-            return $this->generateXml($profile, $filename);
+            $result = $this->generateXml($profile, $filename);
         }
+
+        if ($result) {
+            $localPath = 'google_feed/' . $filename;
+            $deliveryType = $profile->getDeliveryType() ?: 'local';
+            $adapter = $this->adapterPool->get($deliveryType);
+            return $adapter->upload($profile, $localPath);
+        }
+
+        return false;
     }
 
     /**

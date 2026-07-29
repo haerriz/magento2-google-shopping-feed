@@ -120,4 +120,63 @@ class FeedProfile extends AbstractModel implements FeedProfileInterface
     {
         return $this->setData(self::UPDATED_AT, $updatedAt);
     }
+    public function getDeliveryType()
+    {
+        return $this->getData(self::DELIVERY_TYPE);
+    }
+
+    public function setDeliveryType($type)
+    {
+        return $this->setData(self::DELIVERY_TYPE, $type);
+    }
+
+    public function getDeliveryHost()
+    {
+        return $this->getData(self::DELIVERY_HOST);
+    }
+
+    public function setDeliveryHost($host)
+    {
+        return $this->setData(self::DELIVERY_HOST, $host);
+    }
+
+    public function getDeliveryPort()
+    {
+        return $this->getData(self::DELIVERY_PORT);
+    }
+
+    public function setDeliveryPort($port)
+    {
+        return $this->setData(self::DELIVERY_PORT, $port);
+    }
+
+    public function getDeliveryUsername()
+    {
+        return $this->getData(self::DELIVERY_USERNAME);
+    }
+
+    public function setDeliveryUsername($username)
+    {
+        return $this->setData(self::DELIVERY_USERNAME, $username);
+    }
+
+    public function getDeliveryPassword()
+    {
+        return $this->getData(self::DELIVERY_PASSWORD);
+    }
+
+    public function setDeliveryPassword($password)
+    {
+        return $this->setData(self::DELIVERY_PASSWORD, $password);
+    }
+
+    public function getDeliveryPath()
+    {
+        return $this->getData(self::DELIVERY_PATH);
+    }
+
+    public function setDeliveryPath($path)
+    {
+        return $this->setData(self::DELIVERY_PATH, $path);
+    }
 }

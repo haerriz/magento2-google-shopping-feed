@@ -10,6 +10,12 @@
         <column xsi:type="varchar" name="feed_type" nullable="false" length="50" default="csv" comment="Feed Format (csv, xml)"/>
         <column xsi:type="mediumtext" name="conditions_serialized" nullable="true" comment="Product Filter Conditions"/>
         <column xsi:type="mediumtext" name="attributes_mapping_serialized" nullable="true" comment="Attributes Mapping"/>
+        <column xsi:type="varchar" name="delivery_type" nullable="false" length="32" default="local" comment="Delivery Type"/>
+        <column xsi:type="varchar" name="delivery_host" nullable="true" length="255" comment="Delivery Host"/>
+        <column xsi:type="int" name="delivery_port" padding="5" unsigned="true" nullable="true" comment="Delivery Port"/>
+        <column xsi:type="varchar" name="delivery_username" nullable="true" length="255" comment="Delivery Username"/>
+        <column xsi:type="text" name="delivery_password" nullable="true" comment="Delivery Password"/>
+        <column xsi:type="varchar" name="delivery_path" nullable="true" length="255" comment="Delivery Path"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Update Time"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
