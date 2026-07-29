@@ -113,5 +113,11 @@
                 </item>
             </argument>
         </column>
+        <actionsColumn name="actions" class="Haerriz\GoogleShoppingFeed\Ui\Component\Listing\Column\FeedActions">
+            <settings>
+                <indexField>profile_id</indexField>
+                <label translate="true">Actions</label>
+            </settings>
+        </actionsColumn>
     </columns>
 </listing>

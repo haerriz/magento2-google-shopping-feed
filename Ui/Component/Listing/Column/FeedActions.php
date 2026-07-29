@@ -4,7 +4,7 @@ namespace Haerriz\GoogleShoppingFeed\Ui\Component\Listing\Column;
 use Magento\Framework\UrlInterface;
 use Magento\Ui\Component\Listing\Columns\Column;
 
-class JobActions extends Column
+class FeedActions extends Column
 {
     private $urlBuilder;
 
@@ -22,26 +22,25 @@ class JobActions extends Column
     public function prepareDataSource(array $dataSource)
     {
         foreach ($dataSource['data']['items'] ?? [] as &$item) {
-            $id = (int)$item['job_id'];
+            $id = (int)($item['profile_id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
             $item[$this->getData('name')] = [
-                'view' => [
-                    'href' => $this->urlBuilder->getUrl('*/*/view', ['id' => $id]),
-                    'label' => __('View Details'),
+                'edit' => [
+                    'href' => $this->urlBuilder->getUrl('*/*/edit', ['id' => $id]),
+                    'label' => __('Edit'),
+                ],
+                'history' => [
+                    'href' => $this->urlBuilder->getUrl(
+                        'haerriz_googleshoppingfeed/job/index',
+                        ['filters' => ['profile_id' => $id]]
+                    ),
+                    'label' => __('Job History'),
                 ],
                 'download' => [
                     'href' => $this->urlBuilder->getUrl('*/*/download', ['id' => $id]),
-                    'label' => __('Download'),
-                ],
-                'retry' => [
-                    'href' => $this->urlBuilder->getUrl('*/*/retry', ['id' => $id]),
-                    'label' => __('Retry'),
-                    'confirm' => ['title' => __('Retry job'), 'message' => __('Generate this profile again?')],
-                    'post' => true,
-                ],
-                'cancel' => [
-                    'href' => $this->urlBuilder->getUrl('*/*/cancel', ['id' => $id]),
-                    'label' => __('Cancel'),
-                    'post' => true,
+                    'label' => __('Download Current Feed'),
                 ],
             ];
         }
