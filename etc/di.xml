@@ -45,6 +45,10 @@
             <argument name="modifiers" xsi:type="array">
                 <item name="strip_tags" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\StripTags</item>
                 <item name="round_price" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\RoundPrice</item>
+                <item name="prepend_text" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\PrependText</item>
+                <item name="append_text" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\AppendText</item>
+                <item name="capitalize" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\Capitalize</item>
+                <item name="google_taxonomy" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\GoogleTaxonomy</item>
             </argument>
         </arguments>
     </type>

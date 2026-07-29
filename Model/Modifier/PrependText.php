@@ -3,16 +3,16 @@ namespace Haerriz\GoogleShoppingFeed\Model\Modifier;
 
 use Magento\Catalog\Model\Product;
 
-class StripTags implements ModifierInterface
+class PrependText implements ModifierInterface
 {
     /**
-     * @param string $value
-     * @param Product $product
-     * @param string|null $argument
-     * @return string
+     * @inheritdoc
      */
     public function modify($value, Product $product, $argument = null)
     {
-        return strip_tags($value);
+        if ($argument !== null) {
+            return $argument . $value;
+        }
+        return $value;
     }
 }
