@@ -47,12 +47,22 @@ class RowBuilder
     public function build(Product $product, FeedProfileInterface $profile)
     {
         $row = [];
+        $conditionalValues = json_decode(
+            (string)$this->configReader->get($profile, 'conditional_values_serialized', '[]'),
+            true
+        );
+        $conditionalValues = is_array($conditionalValues) ? $conditionalValues : [];
         foreach ($this->getMappings($profile) as $mapping) {
             $field = (string)($mapping['google_attribute'] ?? $mapping['field'] ?? '');
             if ($field === '') {
                 throw new \InvalidArgumentException('Every mapping requires an output field.');
             }
-            $value = $this->valueResolver->resolve($mapping, $product, $profile);
+            $effectiveMapping = $this->applyConditionalValue(
+                $mapping,
+                (array)($conditionalValues[$field] ?? []),
+                $product
+            );
+            $value = $this->valueResolver->resolve($effectiveMapping, $product, $profile);
             $row[$field] = $this->modifierPipeline->apply(
                 $value,
                 (array)($mapping['modifiers'] ?? []),
@@ -61,6 +71,47 @@ class RowBuilder
             );
         }
         return $row;
+    }
+
+    private function applyConditionalValue(array $mapping, array $conditions, Product $product)
+    {
+        foreach ($conditions as $condition) {
+            $actual = $product->getData((string)($condition['attribute'] ?? ''));
+            $expected = $condition['value'] ?? null;
+            $operator = (string)($condition['operator'] ?? 'eq');
+            if ($this->matches($actual, $operator, $expected)) {
+                if (array_key_exists('static_value', $condition)) {
+                    $mapping['source_type'] = 'static';
+                    $mapping['static_value'] = $condition['static_value'];
+                } elseif (!empty($condition['magento_attribute'])) {
+                    $mapping['magento_attribute'] = $condition['magento_attribute'];
+                }
+                break;
+            }
+        }
+        return $mapping;
+    }
+
+    private function matches($actual, $operator, $expected)
+    {
+        switch ($operator) {
+            case 'eq':
+                return (string)$actual === (string)$expected;
+            case 'neq':
+                return (string)$actual !== (string)$expected;
+            case 'gt':
+                return (float)$actual > (float)$expected;
+            case 'gte':
+                return (float)$actual >= (float)$expected;
+            case 'lt':
+                return (float)$actual < (float)$expected;
+            case 'lte':
+                return (float)$actual <= (float)$expected;
+            case 'contains':
+                return mb_stripos((string)$actual, (string)$expected) !== false;
+            default:
+                return false;
+        }
     }
 
     public function validate(FeedProfileInterface $profile)

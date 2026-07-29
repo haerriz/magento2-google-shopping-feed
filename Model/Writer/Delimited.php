@@ -37,6 +37,23 @@ class Delimited implements WriterInterface
         if (strlen($delimiter) !== 1 || strlen($enclosure) !== 1) {
             throw new \InvalidArgumentException('Delimiter and enclosure must each be exactly one byte.');
         }
-        $stream->writeCsv($values, $delimiter, $enclosure);
+        $memory = fopen('php://temp', 'w+');
+        if ($memory === false) {
+            throw new \RuntimeException('Unable to allocate a bounded row buffer.');
+        }
+        try {
+            fputcsv($memory, $values, $delimiter, $enclosure);
+            rewind($memory);
+            $line = rtrim((string)stream_get_contents($memory), "\r\n");
+        } finally {
+            fclose($memory);
+        }
+        $lineEnding = (string)$this->configReader->get($profile, 'line_ending', 'LF');
+        $line .= $lineEnding === 'CRLF' ? "\r\n" : "\n";
+        $encoding = (string)$this->configReader->get($profile, 'encoding', 'UTF-8');
+        if (strcasecmp($encoding, 'UTF-8') !== 0) {
+            $line = mb_convert_encoding($line, $encoding, 'UTF-8');
+        }
+        $stream->write($line);
     }
 }

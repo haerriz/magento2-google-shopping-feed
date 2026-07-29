@@ -192,6 +192,18 @@
                 <item name="dataType" xsi:type="string">text</item><item name="source" xsi:type="string">profile</item>
             </item></argument>
         </field>
+        <field name="line_ending" formElement="select">
+            <argument name="data" xsi:type="array"><item name="options" xsi:type="array">
+                <item name="lf" xsi:type="array"><item name="value" xsi:type="string">LF</item><item name="label" xsi:type="string">LF</item></item>
+                <item name="crlf" xsi:type="array"><item name="value" xsi:type="string">CRLF</item><item name="label" xsi:type="string">CRLF</item></item>
+            </item><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Line Ending</item><item name="source" xsi:type="string">profile</item></item></argument>
+        </field>
+        <field name="encoding">
+            <argument name="data" xsi:type="array"><item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Encoding</item><item name="notice" xsi:type="string" translate="true">UTF-8 is required for XML and JSON Lines.</item>
+                <item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item>
+            </item></argument>
+        </field>
     </fieldset>
     <fieldset name="conditions">
         <argument name="data" xsi:type="array">

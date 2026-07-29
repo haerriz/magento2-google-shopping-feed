@@ -69,6 +69,16 @@ class ProfileValidator
                 $errors['delimiter'][] = 'Delimiter and enclosure must each be one byte.';
             }
         }
+        $encoding = (string)$this->configReader->get($profile, 'encoding', 'UTF-8');
+        if (!in_array(strtoupper($encoding), array_map('strtoupper', mb_list_encodings()), true)) {
+            $errors['encoding'][] = 'Select a supported output encoding.';
+        }
+        if (in_array($format, ['xml', 'jsonl'], true) && strcasecmp($encoding, 'UTF-8') !== 0) {
+            $errors['encoding'][] = 'XML and JSON Lines output must use UTF-8.';
+        }
+        if (!in_array((string)$this->configReader->get($profile, 'line_ending', 'LF'), ['LF', 'CRLF'], true)) {
+            $errors['line_ending'][] = 'Line ending must be LF or CRLF.';
+        }
         $delivery = (string)$profile->getDeliveryType();
         if (in_array($delivery, ['ftp', 'sftp'], true)) {
             foreach (['delivery_host', 'delivery_username', 'delivery_path'] as $field) {
