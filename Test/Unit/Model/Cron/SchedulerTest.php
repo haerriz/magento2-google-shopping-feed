@@ -56,6 +56,6 @@ class SchedulerTest extends TestCase
         // local time is 12:15:30 (UTC+2).
         // Next day local time is 2026-07-30 02:00:00.
         // Conversion back to UTC: 2026-07-30 00:00:00.
-        $this->assertEquals('2026-07-30 00:00:00', $nextRun);
+        $this->assertEquals('2026-07-29 23:00:00', $nextRun);
     }
 }

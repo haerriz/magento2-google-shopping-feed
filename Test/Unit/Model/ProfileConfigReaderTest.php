@@ -10,7 +10,10 @@ class ProfileConfigReaderTest extends TestCase
 {
     public function testReadsAndNormalizesConcreteProfileValues()
     {
-        $profile = new FeedProfile();
+        $profile = $this->getMockBuilder(FeedProfile::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
         $profile->setData('enabled_flag', '1');
         $profile->setData('category_ids', '3, 5,3,invalid');
 

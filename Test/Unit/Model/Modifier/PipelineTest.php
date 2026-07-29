@@ -9,6 +9,16 @@ use PHPUnit\Framework\TestCase;
 
 class PipelineTest extends TestCase
 {
+    private function product()
+    {
+        return $this->getMockBuilder(Product::class)->disableOriginalConstructor()->onlyMethods([])->getMock();
+    }
+
+    private function profile()
+    {
+        return $this->getMockBuilder(FeedProfile::class)->disableOriginalConstructor()->onlyMethods([])->getMock();
+    }
+
     private function pipeline()
     {
         return new Pipeline($this->createMock(Pool::class));
@@ -25,8 +35,8 @@ class PipelineTest extends TestCase
                 ['code' => 'truncate', 'value' => 4],
                 ['code' => 'append', 'value' => '!'],
             ],
-            new Product(),
-            new FeedProfile()
+            $this->product(),
+            $this->profile()
         );
 
         $this->assertSame('CAFÉ!', $value);
@@ -37,8 +47,8 @@ class PipelineTest extends TestCase
         $value = $this->pipeline()->apply(
             0,
             [['code' => 'default', 'value' => 'fallback']],
-            new Product(),
-            new FeedProfile()
+            $this->product(),
+            $this->profile()
         );
         $this->assertSame(0, $value);
     }

@@ -4,7 +4,7 @@ namespace Haerriz\GoogleShoppingFeed\Test\Unit\Controller\Adminhtml\Feed;
 use PHPUnit\Framework\TestCase;
 use Haerriz\GoogleShoppingFeed\Controller\Adminhtml\Feed\Save;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Message\ManagerInterface;
@@ -14,6 +14,8 @@ use Haerriz\GoogleShoppingFeed\Model\FeedProfile;
 use Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface;
 use Haerriz\GoogleShoppingFeed\Model\Logger\Sanitizer;
 use Haerriz\GoogleShoppingFeed\Model\RuleFactory;
+use Haerriz\GoogleShoppingFeed\Model\Cron\Scheduler;
+use Haerriz\GoogleShoppingFeed\Model\ProfileValidator;
 
 class SaveTest extends TestCase
 {
@@ -30,7 +32,7 @@ class SaveTest extends TestCase
     protected function setUp(): void
     {
         $this->contextMock = $this->createMock(Context::class);
-        $this->requestMock = $this->createMock(RequestInterface::class);
+        $this->requestMock = $this->createMock(Http::class);
         $this->redirectFactoryMock = $this->createMock(RedirectFactory::class);
         $this->resultRedirectMock = $this->createMock(Redirect::class);
         $this->messageManagerMock = $this->createMock(ManagerInterface::class);
@@ -51,7 +53,9 @@ class SaveTest extends TestCase
             $this->factoryMock,
             $this->createMock(CredentialProviderInterface::class),
             $this->createMock(RuleFactory::class),
-            new Sanitizer()
+            new Sanitizer(),
+            $this->createMock(Scheduler::class),
+            $this->createMock(ProfileValidator::class)
         );
     }
 

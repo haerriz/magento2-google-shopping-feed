@@ -12,6 +12,16 @@ use PHPUnit\Framework\TestCase;
 
 class ProductTypeResolverTest extends TestCase
 {
+    private function product()
+    {
+        return $this->getMockBuilder(Product::class)->disableOriginalConstructor()->onlyMethods([])->getMock();
+    }
+
+    private function profile()
+    {
+        return $this->getMockBuilder(FeedProfile::class)->disableOriginalConstructor()->onlyMethods([])->getMock();
+    }
+
     private function createResolver()
     {
         return new ProductTypeResolver(
@@ -24,18 +34,18 @@ class ProductTypeResolverTest extends TestCase
 
     public function testSimpleProductProducesOneRow()
     {
-        $product = new Product();
+        $product = $this->product();
         $product->setTypeId('simple');
 
-        $this->assertSame([$product], $this->createResolver()->resolve($product, new FeedProfile()));
+        $this->assertSame([$product], $this->createResolver()->resolve($product, $this->profile()));
     }
 
     public function testVirtualAndDownloadableRequireExplicitOptIn()
     {
-        $profile = new FeedProfile();
-        $virtual = new Product();
+        $profile = $this->profile();
+        $virtual = $this->product();
         $virtual->setTypeId('virtual');
-        $downloadable = new Product();
+        $downloadable = $this->product();
         $downloadable->setTypeId('downloadable');
 
         $resolver = $this->createResolver();

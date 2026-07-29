@@ -11,7 +11,10 @@ class WriterTest extends TestCase
     {
         $stream = new MemoryStream();
         $writer = new JsonLines();
-        $profile = new FeedProfile();
+        $profile = $this->getMockBuilder(FeedProfile::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
 
         $writer->start($stream, $profile, ['g:id', 'g:title']);
         $writer->writeRow($stream, $profile, ['g:id' => '1', 'g:title' => 'Café']);
