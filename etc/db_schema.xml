@@ -14,7 +14,7 @@
         <column xsi:type="varchar" name="filename" nullable="false" length="255" comment="Filename"/>
         <column xsi:type="varchar" name="feed_type" nullable="false" length="50" default="csv" comment="Feed Format (csv, xml)"/>
         <column xsi:type="varchar" name="delimiter" nullable="false" length="8" default="," comment="Delimited Output Delimiter"/>
-        <column xsi:type="varchar" name="enclosure" nullable="false" length="8" default="&quot;" comment="Delimited Output Enclosure"/>
+        <column xsi:type="varchar" name="enclosure" nullable="true" length="8" comment="Delimited Output Enclosure"/>
         <column xsi:type="varchar" name="line_ending" nullable="false" length="16" default="LF" comment="Output Line Ending"/>
         <column xsi:type="varchar" name="encoding" nullable="false" length="32" default="UTF-8" comment="Output Encoding"/>
         <column xsi:type="varchar" name="compression" nullable="false" length="16" default="none" comment="Artifact Compression"/>
