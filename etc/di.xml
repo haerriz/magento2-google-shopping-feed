@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfileRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedLogRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogRepository" />
@@ -7,7 +8,6 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobItemRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobItemRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedRemoteStateRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedRemoteStateRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\CategoryMappingRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\Taxonomy\CategoryMappingRepository" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider" />
