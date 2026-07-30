@@ -5,7 +5,7 @@
             <item name="provider" xsi:type="string">haerriz_googleshoppingfeed_feed_form.haerriz_googleshoppingfeed_feed_form_data_source</item>
         </item>
         <item name="label" xsi:type="string" translate="true">Google Feed Wizard</item>
-        <item name="template" xsi:type="string">templates/form/default</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
     </argument>
     <settings>
         <buttons>
@@ -14,6 +14,9 @@
         </buttons>
         <namespace>haerriz_googleshoppingfeed_feed_form</namespace>
         <dataScope>data</dataScope>
+        <deps>
+            <dep>haerriz_googleshoppingfeed_feed_form.haerriz_googleshoppingfeed_feed_form_data_source</dep>
+        </deps>
     </settings>
     <dataSource name="haerriz_googleshoppingfeed_feed_form_data_source">
         <argument name="data" xsi:type="array">
@@ -69,7 +72,7 @@
         <settings>
             <label translate="true">Step 2: Exclude Categories</label>
             <collapsible>true</collapsible>
-            <opened>true</opened>
+            <opened>false</opened>
         </settings>
         <field name="excluded_category_ids">
             <argument name="data" xsi:type="array"><item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\Category</item><item name="config" xsi:type="array"><item name="dataType" xsi:type="string">text</item><item name="label" xsi:type="string" translate="true">Categories to Exclude</item><item name="formElement" xsi:type="string">multiselect</item><item name="source" xsi:type="string">profile</item><item name="notice" xsi:type="string" translate="true">Select categories whose products should be excluded from feed generation.</item><item name="sortOrder" xsi:type="number">10</item></item></argument>
@@ -81,7 +84,7 @@
         <settings>
             <label translate="true">Step 3: Rename Categories</label>
             <collapsible>true</collapsible>
-            <opened>true</opened>
+            <opened>false</opened>
         </settings>
         <field name="category_mapping_config" formElement="textarea">
             <argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Category Taxonomy Mappings (JSON)</item><item name="notice" xsi:type="string" translate="true">Map store categories to Google/Channel Taxonomy (e.g. {"10": "Apparel &amp; Accessories > Clothing"})</item><item name="source" xsi:type="string">profile</item><item name="sortOrder" xsi:type="number">10</item></item></argument>
@@ -93,7 +96,7 @@
         <settings>
             <label translate="true">Step 4: Basic Product Information</label>
             <collapsible>true</collapsible>
-            <opened>true</opened>
+            <opened>false</opened>
         </settings>
         <field name="mapping_config" formElement="textarea">
             <argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="label" xsi:type="string" translate="true">Basic Attribute Mapping Schema (JSON)</item><item name="notice" xsi:type="string" translate="true">Default mapping for id, title, description, price, link, image_link, availability</item><item name="source" xsi:type="string">profile</item><item name="sortOrder" xsi:type="number">10</item></item></argument>
@@ -105,7 +108,7 @@
         <settings>
             <label translate="true">Step 5: Optional Product Information</label>
             <collapsible>true</collapsible>
-            <opened>true</opened>
+            <opened>false</opened>
         </settings>
         <field name="utm_source">
             <argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="dataType" xsi:type="string">text</item><item name="label" xsi:type="string" translate="true">UTM Source</item><item name="formElement" xsi:type="string">input</item><item name="source" xsi:type="string">profile</item><item name="sortOrder" xsi:type="number">10</item></item></argument>
@@ -123,7 +126,7 @@
         <settings>
             <label translate="true">Step 6: Schedule Settings</label>
             <collapsible>true</collapsible>
-            <opened>true</opened>
+            <opened>false</opened>
         </settings>
         <field name="cron_expr">
             <argument name="data" xsi:type="array"><item name="config" xsi:type="array"><item name="dataType" xsi:type="string">text</item><item name="label" xsi:type="string" translate="true">Cron Schedule Expression</item><item name="formElement" xsi:type="string">input</item><item name="notice" xsi:type="string" translate="true">Standard 5-part cron syntax, e.g., 0 3 * * * (Daily at 3 AM)</item><item name="source" xsi:type="string">profile</item><item name="sortOrder" xsi:type="number">10</item></item></argument>
@@ -135,7 +138,7 @@
         <settings>
             <label translate="true">Step 7: Destination</label>
             <collapsible>true</collapsible>
-            <opened>true</opened>
+            <opened>false</opened>
         </settings>
         <field name="delivery_type">
             <argument name="data" xsi:type="array"><item name="options" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Config\Source\DeliveryType</item><item name="config" xsi:type="array"><item name="dataType" xsi:type="string">text</item><item name="label" xsi:type="string" translate="true">Delivery Adapter</item><item name="formElement" xsi:type="string">select</item><item name="source" xsi:type="string">profile</item><item name="sortOrder" xsi:type="number">10</item></item></argument>
