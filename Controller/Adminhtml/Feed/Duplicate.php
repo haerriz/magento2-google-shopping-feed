@@ -4,9 +4,8 @@ namespace Haerriz\GoogleShoppingFeed\Controller\Adminhtml\Feed;
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
 use Haerriz\GoogleShoppingFeed\Model\FeedProfileCloner;
 use Magento\Backend\App\Action;
-use Magento\Framework\App\Action\HttpPostActionInterface;
 
-class Duplicate extends Action implements HttpPostActionInterface
+class Duplicate extends Action
 {
     const ADMIN_RESOURCE = 'Haerriz_GoogleShoppingFeed::feed_profiles';
 
@@ -27,12 +26,13 @@ class Duplicate extends Action implements HttpPostActionInterface
     {
         $redirect = $this->resultRedirectFactory->create();
         try {
-            $source = $this->repository->getById((int)$this->getRequest()->getParam('id'));
+            $id = (int)$this->getRequest()->getParam('id');
+            $source = $this->repository->getById($id);
             $copy = $this->cloner->duplicate($source);
             $this->messageManager->addSuccessMessage(__('The profile was duplicated without credentials.'));
-            return $redirect->setPath('*/*/edit', ['id' => $copy->getId()]);
+            return $redirect->setPath('*/*/edit', ['id' => $copy->getId() ?? $copy->getProfileId()]);
         } catch (\Exception $exception) {
-            $this->messageManager->addErrorMessage(__('The profile could not be duplicated.'));
+            $this->messageManager->addErrorMessage(__('The profile could not be duplicated: %1', $exception->getMessage()));
             return $redirect->setPath('*/*/');
         }
     }

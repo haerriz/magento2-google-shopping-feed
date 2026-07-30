@@ -3,9 +3,8 @@ namespace Haerriz\GoogleShoppingFeed\Controller\Adminhtml\Feed;
 
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
 use Magento\Backend\App\Action;
-use Magento\Framework\App\Action\HttpPostActionInterface;
 
-class Delete extends Action implements HttpPostActionInterface
+class Delete extends Action
 {
     const ADMIN_RESOURCE = 'Haerriz_GoogleShoppingFeed::feed_profiles';
 
@@ -23,12 +22,13 @@ class Delete extends Action implements HttpPostActionInterface
     {
         $redirect = $this->resultRedirectFactory->create();
         try {
-            $this->repository->deleteById((int)$this->getRequest()->getParam('id'));
+            $id = (int)$this->getRequest()->getParam('id');
+            $this->repository->deleteById($id);
             $this->messageManager->addSuccessMessage(
-                __('The profile was deleted. Historical jobs were retained.')
+                __('The profile was deleted successfully.')
             );
         } catch (\Exception $exception) {
-            $this->messageManager->addErrorMessage(__('The profile could not be deleted.'));
+            $this->messageManager->addErrorMessage(__('The profile could not be deleted: %1', $exception->getMessage()));
         }
 
         return $redirect->setPath('*/*/');

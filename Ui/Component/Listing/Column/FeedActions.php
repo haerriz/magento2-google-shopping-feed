@@ -41,7 +41,7 @@ class FeedActions extends Column
                         'target' => '_blank'
                     ],
                     'generate' => [
-                        'href' => $this->urlBuilder->getUrl('haerriz_googleshoppingfeed/feed/trigger', ['id' => $id]),
+                        'href' => $this->urlBuilder->getUrl('haerriz_googleshoppingfeed/feed/trigger', ['action' => 'run', 'id' => $id]),
                         'label' => __('Generate Now'),
                         'confirm' => [
                             'title' => __('Generate Feed'),

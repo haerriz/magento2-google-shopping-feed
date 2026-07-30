@@ -6,6 +6,10 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfile" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJob" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLog" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+
     <preference for="Haerriz\GoogleShoppingFeed\Api\GenerationOrchestratorInterface" type="Haerriz\GoogleShoppingFeed\Model\Generation\Orchestrator" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\ArtifactManagerInterface" type="Haerriz\GoogleShoppingFeed\Model\Artifact\ArtifactManager" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductEligibilityPolicyInterface" type="Haerriz\GoogleShoppingFeed\Model\Product\EligibilityPolicy" />
@@ -38,6 +42,16 @@
                 <item name="rakuten_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
                 <item name="jsonl" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\JsonLines</item>
                 <item name="openai_commerce_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\JsonLines</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Haerriz\GoogleShoppingFeed\Model\Delivery\DeliveryPool">
+        <arguments>
+            <argument name="adapters" xsi:type="array">
+                <item name="local" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Delivery\LocalAdapter</item>
+                <item name="ftp" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Delivery\FtpAdapter</item>
+                <item name="sftp" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Delivery\SftpAdapter</item>
             </argument>
         </arguments>
     </type>

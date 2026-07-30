@@ -13,7 +13,6 @@ class StructuredData extends Template
         Registry $registry,
         array $data = []
     ) {
-
         parent::__construct($context, $data);
         $this->registry = $registry;
     }
@@ -36,8 +35,8 @@ class StructuredData extends Template
         $schema = [
             '@context' => 'https://schema.org/',
             '@type' => 'Product',
-            'name' => $product->getName(),
-            'sku' => $product->getSku(),
+            'name' => (string)$product->getName(),
+            'sku' => (string)$product->getSku(),
             'image' => $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage(),
             'description' => strip_tags((string)$product->getDescription()),
             'offers' => [
@@ -49,6 +48,7 @@ class StructuredData extends Template
             ]
         ];
 
-        return json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        // Security Encoding: JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP to prevent breaking script context
+        return json_encode($schema, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 }

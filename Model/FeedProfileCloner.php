@@ -2,60 +2,37 @@
 namespace Haerriz\GoogleShoppingFeed\Model;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
+use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterfaceFactory;
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
 
 class FeedProfileCloner
 {
-    /**
-     * @var FeedProfileFactory
-     */
     private $profileFactory;
-
-    /**
-     * @var FeedProfileRepositoryInterface
-     */
-    private $repository;
+    private $profileRepository;
 
     public function __construct(
-        FeedProfileFactory $profileFactory,
-        FeedProfileRepositoryInterface $repository
+        FeedProfileInterfaceFactory $profileFactory,
+        FeedProfileRepositoryInterface $profileRepository
     ) {
         $this->profileFactory = $profileFactory;
-        $this->repository = $repository;
+        $this->profileRepository = $profileRepository;
     }
 
-    /**
-     * Clone a profile without credentials, locks, schedule state, or identity.
-     *
-     * @param FeedProfileInterface $source
-     * @return FeedProfileInterface
-     */
-    public function duplicate(FeedProfileInterface $source)
+    public function duplicate(FeedProfileInterface $source): FeedProfileInterface
     {
-        if (!$source instanceof FeedProfile) {
-            throw new \InvalidArgumentException('Unsupported feed profile implementation.');
-        }
+        $data = $source->getData();
+
+        unset($data['profile_id'], $data['entity_id']);
+        $data['name'] = __('Copy of %1', $source->getName());
+        $data['status'] = 0;
+        
+        // Security Scrub: Clear all credentials, private keys, and passphrases
+        unset($data['delivery_password']);
+        unset($data['delivery_private_key']);
+        unset($data['delivery_key_passphrase']);
 
         $copy = $this->profileFactory->create();
-        $data = $source->getData();
-        foreach ([
-            'profile_id',
-            'delivery_password',
-            'created_at',
-            'updated_at',
-            'next_run_at',
-            'is_locked',
-            'locked_at',
-            'retry_count',
-            'consecutive_failures',
-        ] as $field) {
-            unset($data[$field]);
-        }
-
         $copy->setData($data);
-        $copy->setName(__('Copy of %1', $source->getName()));
-        $copy->setStatus(0);
-
-        return $this->repository->save($copy);
+        return $this->profileRepository->save($copy);
     }
 }
