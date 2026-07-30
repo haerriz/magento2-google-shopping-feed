@@ -5,6 +5,7 @@ use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
 use Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface;
 use Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface;
 use Haerriz\GoogleShoppingFeed\Model\ProfileConfigReader;
+use Haerriz\GoogleShoppingFeed\Model\Template\PresetRegistry;
 use Magento\Catalog\Model\Product;
 
 class RowBuilder
@@ -12,22 +13,25 @@ class RowBuilder
     private $valueResolver;
     private $modifierPipeline;
     private $configReader;
+    private $presetRegistry;
 
     public function __construct(
         ProductValueResolverInterface $valueResolver,
         ModifierPipelineInterface $modifierPipeline,
-        ProfileConfigReader $configReader
+        ProfileConfigReader $configReader,
+        PresetRegistry $presetRegistry
     ) {
         $this->valueResolver = $valueResolver;
         $this->modifierPipeline = $modifierPipeline;
         $this->configReader = $configReader;
+        $this->presetRegistry = $presetRegistry;
     }
 
     public function getMappings(FeedProfileInterface $profile)
     {
         $mappings = json_decode((string)$profile->getAttributesMappingSerialized(), true);
-        if (!is_array($mappings)) {
-            return [];
+        if (!is_array($mappings) || empty($mappings)) {
+            $mappings = $this->getDefaultMappingForType((string)$profile->getFeedType());
         }
         $chains = json_decode((string)$this->configReader->get($profile, 'modifier_chains_serialized', '[]'), true);
         $chains = is_array($chains) ? $chains : [];
@@ -44,6 +48,22 @@ class RowBuilder
         return $mappings;
     }
 
+    private function getDefaultMappingForType(string $feedType): array
+    {
+        $presets = $this->presetRegistry->getPresets();
+        foreach ($presets as $key => $preset) {
+            if (str_contains($feedType, $key)) {
+                return $preset['mapping'] ?? [];
+            }
+        }
+        return [
+            ['google_attribute' => 'g:id', 'magento_attribute' => 'sku'],
+            ['google_attribute' => 'g:title', 'magento_attribute' => 'name'],
+            ['google_attribute' => 'g:price', 'magento_attribute' => 'price'],
+            ['google_attribute' => 'g:availability', 'magento_attribute' => 'quantity']
+        ];
+    }
+
     public function build(Product $product, FeedProfileInterface $profile)
     {
         $row = [];
@@ -55,7 +75,7 @@ class RowBuilder
         foreach ($this->getMappings($profile) as $mapping) {
             $field = (string)($mapping['google_attribute'] ?? $mapping['field'] ?? '');
             if ($field === '') {
-                throw new \InvalidArgumentException('Every mapping requires an output field.');
+                continue;
             }
             $effectiveMapping = $this->applyConditionalValue(
                 $mapping,
