@@ -1,11 +1,12 @@
 <?php
 namespace Haerriz\GoogleShoppingFeed\Model;
 
+use Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface;
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 
-class ProductProvider
+class ProductProvider implements ProductProviderInterface
 {
     private $productCollectionFactory;
 

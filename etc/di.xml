@@ -7,6 +7,10 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobItemRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobItemRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedRemoteStateRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedRemoteStateRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\CategoryMappingRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\Taxonomy\CategoryMappingRepository" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider" />
 
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfile" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJob" />
@@ -16,7 +20,6 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
 
     <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\WriterInterface" type="Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml" />
 
     <type name="Haerriz\GoogleShoppingFeed\Model\Writer\Pool">

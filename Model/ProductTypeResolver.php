@@ -1,9 +1,10 @@
 <?php
 namespace Haerriz\GoogleShoppingFeed\Model;
 
+use Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface;
 use Magento\Catalog\Model\Product;
 
-class ProductTypeResolver
+class ProductTypeResolver implements ProductTypeResolverInterface
 {
     public function resolveType(Product $product): string
     {
