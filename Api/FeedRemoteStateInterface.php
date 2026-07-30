@@ -1,5 +1,5 @@
 <?php
-namespace Haerriz\GoogleShoppingFeed\Api\Data;
+namespace Haerriz\GoogleShoppingFeed\Api;
 
 interface FeedRemoteStateInterface
 {
