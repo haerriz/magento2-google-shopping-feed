@@ -18,6 +18,8 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\WriterInterface" type="Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml" />
 
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
