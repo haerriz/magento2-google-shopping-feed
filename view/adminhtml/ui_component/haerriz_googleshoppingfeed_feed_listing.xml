@@ -139,6 +139,12 @@
             </argument>
         </column>
         <actionsColumn name="actions" class="Haerriz\GoogleShoppingFeed\Ui\Component\Listing\Column\FeedActions">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="indexField" xsi:type="string">profile_id</item>
+                    <item name="sortOrder" xsi:type="number">200</item>
+                </item>
+            </argument>
             <settings>
                 <indexField>profile_id</indexField>
                 <label translate="true">Actions</label>
