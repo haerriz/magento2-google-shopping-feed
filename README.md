@@ -1,11 +1,11 @@
-# Magento 2 Multi-Channel Product Feed & Google Shopping Generator
+# Enterprise Multi-Channel Product Feed & Google Shopping Generator for Magento 2
 
-![Magento 2.4.7](https://img.shields.io/badge/Magento-2.4.7-orange.svg)
-![PHP 8.2](https://img.shields.io/badge/PHP-8.2-blue.svg)
-![Build Status](https://img.shields.io/badge/DI%20Compile-100%25%20Passed-green.svg)
-![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)
+[![Magento 2.4.7](https://img.shields.io/badge/Magento-2.4.7-orange.svg)](https://magento.com)
+[![PHP 8.2](https://img.shields.io/badge/PHP-8.2-blue.svg)](https://php.net)
+[![Build Status](https://img.shields.io/badge/DI%20Compile-100%25%20Passed-green.svg)](https://github.com/haerriz/magento2-google-shopping-feed)
+[![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
 
-An enterprise-grade, multi-channel product feed generator for Magento 2. Supports **Google Shopping, Meta/Facebook, Instagram, Snapchat, TikTok, Pinterest, Microsoft/Bing, Amazon, eBay, Rakuten, and OpenAI/ChatGPT Agentic Commerce**.
+An enterprise-grade, multi-channel product feed generator for Magento 2. Fully supports **Google Shopping, Meta/Facebook, Instagram, Snapchat, TikTok, Pinterest, Microsoft/Bing, Amazon, eBay, Rakuten, and OpenAI/ChatGPT Agentic Commerce**.
 
 ---
 
@@ -33,6 +33,9 @@ An enterprise-grade, multi-channel product feed generator for Magento 2. Support
   10. **Rakuten Advertising** (`CSV`)
   11. **OpenAI / ChatGPT Agentic Commerce** (`JSONL`)
 
+- ⚡ **Multi-Format Writer Engine**:
+  - Automatically resolves `xml`, `csv`, `tsv`, `txt`, and `jsonl` formats with smart fallbacks.
+
 - 🔍 **Interactive Admin Grid & Quick View**:
   - Actions Menu: Edit, Quick View, Generate Now, Duplicate, Job History, Download, Delete.
   - Live Quick View Preview window rendering real-time formatted output.
@@ -41,15 +44,12 @@ An enterprise-grade, multi-channel product feed generator for Magento 2. Support
   - Located at `Stores -> Configuration -> Haerriz Extensions -> Product Feed`.
   - Real-time display of Magento Mode, Root Path, Server User, DB Timestamp, Opcache status, and CLI PHP path.
 
-- 🧪 **Unit Test Suite**:
-  - Built-in PHPUnit tests under `Test/Unit/`.
-
 ---
 
-## 🛠️ CLI Entrypoints
+## 🛠️ CLI Commands
 
 ```bash
-# Generate a specific feed profile manually
+# Generate a feed profile manually
 php bin/magento haerriz:feed:generate --profile=1
 
 # Validate profile mapping & configuration

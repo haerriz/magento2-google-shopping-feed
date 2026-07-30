@@ -21,7 +21,27 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\WriterInterface" type="Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml" />
 
-    <!-- UI Component Grid Data Sources -->
+    <type name="Haerriz\GoogleShoppingFeed\Model\Writer\Pool">
+        <arguments>
+            <argument name="writers" xsi:type="array">
+                <item name="xml" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml</item>
+                <item name="google_shopping_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml</item>
+                <item name="microsoft_merchant_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml</item>
+                <item name="csv" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="meta_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="instagram_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="snapchat_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="tiktok_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="pinterest_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="amazon_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="ebay_inventory_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="rakuten_catalog_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\Delimited</item>
+                <item name="jsonl" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\JsonLines</item>
+                <item name="openai_commerce_v1" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Writer\JsonLines</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
