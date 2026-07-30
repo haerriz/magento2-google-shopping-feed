@@ -14,6 +14,10 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\MappingCompilerInterface" type="Haerriz\GoogleShoppingFeed\Model\Mapping\Compiler" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\TaxonomyRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\Taxonomy\TaxonomyRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedTemplateRegistryInterface" type="Haerriz\GoogleShoppingFeed\Model\Template\Registry" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider" />
 
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
