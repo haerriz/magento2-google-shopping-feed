@@ -1,37 +1,19 @@
 <?php
 namespace Haerriz\GoogleShoppingFeed\Model\Storage;
 
-use Magento\Framework\Exception\LocalizedException;
+use Haerriz\GoogleShoppingFeed\Model\Delivery\DeliveryPool;
 
 class AdapterPool
 {
-    /**
-     * @var AdapterInterface[]
-     */
-    protected $adapters;
+    private $deliveryPool;
 
-    /**
-     * @param AdapterInterface[] $adapters
-     */
-    public function __construct(array $adapters = [])
+    public function __construct(DeliveryPool $deliveryPool)
     {
-        $this->adapters = $adapters;
+        $this->deliveryPool = $deliveryPool;
     }
 
-    /**
-     * Get storage adapter by code
-     *
-     * @param string $code
-     * @return AdapterInterface
-     * @throws LocalizedException
-     */
-    public function get($code)
+    public function get(string $code)
     {
-        if (!isset($this->adapters[$code])) {
-            throw new LocalizedException(
-                __('Storage adapter for type "%1" is not configured.', $code)
-            );
-        }
-        return $this->adapters[$code];
+        return $this->deliveryPool->get($code);
     }
 }
