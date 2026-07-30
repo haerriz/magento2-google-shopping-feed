@@ -32,6 +32,9 @@
         </argument>
     </dataSource>
     <listingToolbar name="listing_top">
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filters name="listing_filters"/>
         <massaction name="listing_massaction">
             <action name="enable">
                 <settings>
@@ -59,13 +62,13 @@
                 <settings>
                     <url path="haerriz_googleshoppingfeed/feed/massGenerate"/>
                     <type>generate</type>
-                    <label translate="true">Generate</label>
+                    <label translate="true">Generate Selected</label>
                 </settings>
             </action>
             <action name="delete">
                 <settings>
                     <confirm>
-                        <message translate="true">Delete the selected profiles? Job history will be retained.</message>
+                        <message translate="true">Delete the selected profiles?</message>
                         <title translate="true">Delete profiles</title>
                     </confirm>
                     <url path="haerriz_googleshoppingfeed/feed/massStatus">
@@ -92,6 +95,7 @@
                     <item name="filter" xsi:type="string">textRange</item>
                     <item name="sorting" xsi:type="string">asc</item>
                     <item name="label" xsi:type="string" translate="true">ID</item>
+                    <item name="sortOrder" xsi:type="number">10</item>
                 </item>
             </argument>
         </column>
@@ -99,7 +103,27 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">Name</item>
+                    <item name="label" xsi:type="string" translate="true">Profile Name</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
+            </argument>
+        </column>
+        <column name="feed_type">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">select</item>
+                    <item name="label" xsi:type="string" translate="true">Feed Channel</item>
+                    <item name="dataType" xsi:type="string">select</item>
+                    <item name="sortOrder" xsi:type="number">30</item>
+                </item>
+            </argument>
+        </column>
+        <column name="filename">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Output File</item>
+                    <item name="sortOrder" xsi:type="number">40</item>
                 </item>
             </argument>
         </column>
@@ -110,6 +134,7 @@
                     <item name="filter" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Status</item>
                     <item name="dataType" xsi:type="string">select</item>
+                    <item name="sortOrder" xsi:type="number">50</item>
                 </item>
             </argument>
         </column>
