@@ -3,6 +3,11 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfileRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobRepository" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\FeedLogRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogRepository" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedArtifactRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedArtifactRepository" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedJobItemRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJobItemRepository" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedRemoteStateRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedRemoteStateRepository" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\CategoryMappingRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\Taxonomy\CategoryMappingRepository" />
+
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedProfile" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedJob" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLog" />
@@ -10,19 +15,8 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
 
-    <preference for="Haerriz\GoogleShoppingFeed\Api\GenerationOrchestratorInterface" type="Haerriz\GoogleShoppingFeed\Model\Generation\Orchestrator" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ArtifactManagerInterface" type="Haerriz\GoogleShoppingFeed\Model\Artifact\ArtifactManager" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductEligibilityPolicyInterface" type="Haerriz\GoogleShoppingFeed\Model\Product\EligibilityPolicy" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\OfferIdentityResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\Product\OfferIdentityResolver" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\RowValidatorInterface" type="Haerriz\GoogleShoppingFeed\Model\Validation\GoogleShoppingRowValidator" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\MappingCompilerInterface" type="Haerriz\GoogleShoppingFeed\Model\Mapping\Compiler" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\TaxonomyRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\Taxonomy\TaxonomyRepository" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedTemplateRegistryInterface" type="Haerriz\GoogleShoppingFeed\Model\Template\Registry" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductProvider" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductTypeResolver" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
-    <preference for="Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface" type="Haerriz\GoogleShoppingFeed\Model\CredentialProvider" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\ProductValueResolver" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\WriterInterface" type="Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml" />
 
     <type name="Haerriz\GoogleShoppingFeed\Model\Writer\Pool">
@@ -88,6 +82,11 @@
             <argument name="commands" xsi:type="array">
                 <item name="haerriz_feed_generate" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\GenerateFeed</item>
                 <item name="haerriz_feed_validate" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\ValidateFeed</item>
+                <item name="haerriz_feed_import_taxonomy" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\ImportGoogleTaxonomy</item>
+                <item name="haerriz_feed_cleanup_artifacts" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\CleanupArtifacts</item>
+                <item name="haerriz_feed_merchant_sync" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\MerchantSync</item>
+                <item name="haerriz_feed_merchant_reconcile" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\MerchantReconcile</item>
+                <item name="haerriz_feed_consume_jobs" xsi:type="object">Haerriz\GoogleShoppingFeed\Console\Command\ConsumeFeedJobs</item>
             </argument>
         </arguments>
     </type>
