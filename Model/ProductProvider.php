@@ -15,6 +15,15 @@ class ProductProvider implements ProductProviderInterface
         $this->productCollectionFactory = $productCollectionFactory;
     }
 
+    public function getCollection(
+        FeedProfileInterface $profile,
+        $rule = null,
+        $afterEntityId = 0,
+        $pageSize = 500
+    ): Collection {
+        return $this->getProducts($profile);
+    }
+
     public function getProducts(FeedProfileInterface $profile): Collection
     {
         $collection = $this->productCollectionFactory->create();
