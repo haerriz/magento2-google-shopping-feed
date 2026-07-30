@@ -22,22 +22,31 @@ class PreviewService
     {
         $this->validator->assertValid($profile);
         $limit = max(1, min(100, (int)$limit));
-        $path = 'google_feed/preview/' . bin2hex(random_bytes(16)) . '.' . $profile->getFeedType();
+        $path = 'google_feed/preview/' . bin2hex(random_bytes(16)) . '.' . ($profile->getFeedType() ?? 'xml');
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $directory->create('google_feed/preview');
         try {
             $counts = $this->exporter->export($profile, $path, null, $limit);
+            $content = '';
+            if ($directory->isExist($path)) {
+                $content = $directory->readFile($path);
+            }
             return [
                 'sampled' => true,
                 'limit' => $limit,
                 'counts' => $counts,
                 'format' => $profile->getFeedType(),
-                'content' => $directory->readFile($path),
+                'content' => $content,
             ];
         } finally {
             if ($directory->isExist($path)) {
                 $directory->delete($path);
             }
         }
+    }
+
+    public function generatePreview(FeedProfileInterface $profile, $limit = 10)
+    {
+        return $this->preview($profile, $limit);
     }
 }

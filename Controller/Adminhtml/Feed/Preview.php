@@ -34,33 +34,22 @@ class Preview extends Action
 
         try {
             $profile = $this->profileRepository->getById($id);
-            $samples = $this->previewService->generatePreview($profile, 5);
+            $previewData = $this->previewService->preview($profile, 10);
             $channelName = strtoupper(str_replace('_', ' ', $profile->getFeedType() ?? 'Google Shopping'));
 
             $html = '<html><head><title>Quick View Preview - ' . htmlspecialchars($profile->getName()) . '</title>';
-            $html .= '<style>body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; background: #f8f9fa; color: #333; }';
-            $html .= '.card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }';
-            $html .= 'h2 { color: #eb5202; margin-top: 0; } table { width: 100%; border-collapse: collapse; margin-top: 15px; }';
-            $html .= 'th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e3e3e3; } th { background: #f1f1f1; font-weight: 600; }';
-            $html .= '.status-valid { color: #2e7d32; font-weight: bold; } .badge { background: #eb5202; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; }</style></head><body>';
+            $html .= '<style>body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 25px; background: #f4f6f9; color: #333; }';
+            $html .= '.card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 20px; }';
+            $html .= 'h2 { color: #eb5202; margin-top: 0; display: flex; align-items: center; justify-content: space-between; }';
+            $html .= '.badge { background: #eb5202; color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 13px; font-weight: normal; }';
+            $html .= 'pre { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; }</style></head><body>';
             
             $html .= '<div class="card">';
             $html .= '<h2>🔍 Quick View Feed Preview: ' . htmlspecialchars($profile->getName()) . ' <span class="badge">' . htmlspecialchars($channelName) . '</span></h2>';
-            $html .= '<p><strong>Output Target:</strong> <code>' . htmlspecialchars($profile->getFilename()) . '</code> | <strong>Status:</strong> ' . ($profile->getStatus() ? 'Enabled' : 'Disabled') . '</p>';
-            $html .= '<table><thead><tr><th>SKU</th><th>Title</th><th>Price</th><th>Availability</th><th>Mapped Output Attributes</th><th>Status</th></tr></thead><tbody>';
-
-            foreach ($samples as $row) {
-                $html .= '<tr>';
-                $html .= '<td><code>' . htmlspecialchars($row['sku'] ?? 'N/A') . '</code></td>';
-                $html .= '<td><strong>' . htmlspecialchars($row['title'] ?? $row['name'] ?? 'N/A') . '</strong></td>';
-                $html .= '<td>' . htmlspecialchars($row['price'] ?? 'N/A') . '</td>';
-                $html .= '<td>' . htmlspecialchars($row['availability'] ?? 'in stock') . '</td>';
-                $html .= '<td><pre style="font-size:11px; margin:0;">' . htmlspecialchars(json_encode($row, JSON_PRETTY_PRINT)) . '</pre></td>';
-                $html .= '<td><span class="status-valid">✓ Mapped & Validated</span></td>';
-                $html .= '</tr>';
-            }
-
-            $html .= '</tbody></table></div></body></html>';
+            $html .= '<p><strong>Output File:</strong> <code>' . htmlspecialchars($profile->getFilename()) . '</code> | <strong>Status:</strong> ' . ($profile->getStatus() ? 'Enabled' : 'Disabled') . '</p>';
+            $html .= '<h3>Generated Sample Output Payload:</h3>';
+            $html .= '<pre>' . htmlspecialchars($previewData['content'] ?? 'No preview content generated.') . '</pre>';
+            $html .= '</div></body></html>';
 
             $result->setHeader('Content-Type', 'text/html');
             $result->setContents($html);
