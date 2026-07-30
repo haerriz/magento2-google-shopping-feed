@@ -3,6 +3,5 @@ namespace Haerriz\GoogleShoppingFeed\Api\Data;
 
 interface FeedRemoteStateInterface
 {
-    public function getProductId(): int;
-    public function getRemoteStatus(): string;
+    public function getId();
 }

@@ -5,5 +5,5 @@ interface FeedTemplateInterface
 {
     public function getCode(): string;
     public function getName(): string;
-    public function getDefaultMapping(): array;
+    public function getFormat(): string;
 }

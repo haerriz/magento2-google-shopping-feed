@@ -3,5 +3,5 @@ namespace Haerriz\GoogleShoppingFeed\Api;
 
 interface DeliveryAdapterInterface
 {
-    public function deliver(\Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface $profile, string $filePath): bool;
+    public function deliver(array $files, array $config): bool;
 }
