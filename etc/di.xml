@@ -21,6 +21,34 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\WriterInterface" type="Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml" />
 
+    <!-- UI Component Grid Data Sources -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="haerriz_googleshoppingfeed_feed_listing_data_source" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile\Grid\Collection</item>
+                <item name="haerriz_googleshoppingfeed_job_listing_data_source" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">haerriz_google_shopping_feed_profile</argument>
+            <argument name="eventPrefix" xsi:type="string">haerriz_googleshoppingfeed_profile_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">profile_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedProfile</argument>
+        </arguments>
+    </type>
+
+    <type name="Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">haerriz_google_shopping_feed_job</argument>
+            <argument name="eventPrefix" xsi:type="string">haerriz_googleshoppingfeed_job_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">job_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\ResourceModel\FeedJob</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
