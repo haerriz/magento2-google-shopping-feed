@@ -21,6 +21,17 @@
                 <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
             </item>
         </argument>
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">Haerriz\GoogleShoppingFeed\Model\FeedProfile\DataProvider</argument>
+            <argument name="name" xsi:type="string">haerriz_googleshoppingfeed_feed_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">profile_id</argument>
+            <argument name="requestFieldName" xsi:type="string">id</argument>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="submit_url" xsi:type="url" path="haerriz_googleshoppingfeed/feed/save"/>
+                </item>
+            </argument>
+        </argument>
         <settings>
             <submitUrl path="haerriz_googleshoppingfeed/feed/save"/>
         </settings>
