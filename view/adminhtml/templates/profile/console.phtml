@@ -5,7 +5,16 @@ $triggerUrl = $block->getUrl('*/*/triggerAjax', ['id' => $profileId]);
 $progressUrl = $block->getUrl('*/*/progress', ['id' => $profileId]);
 $backUrl = $block->getUrl('*/*/');
 ?>
-<div id="feed-live-console" data-bind="scope: 'feedConsole'">
+
+    <!-- SPIDER WEB CLUSTER NAVIGATION -->
+    <div class="feed-cluster-nav" style="background: #fff; padding: 10px 20px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ccc; display: flex; gap: 15px; align-items: center;">
+        <strong style="color: #666; margin-right: 10px;"><?= __("Module Quick Links:") ?></strong>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/dashboard/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #f4f4f4; color: #333;"><?= __("Dashboard") ?></a>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/feed/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #007bdb; color: #fff;"><?= __("Manage Profiles") ?></a>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/taxonomy/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #f4f4f4; color: #333;"><?= __("Taxonomy Mapper") ?></a>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/job/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #f4f4f4; color: #333;"><?= __("Job History") ?></a>
+    </div>
+    <div id="feed-live-console" data-bind="scope: 'feedConsole'">
     <div class="page-main-actions">
         <div class="page-actions">
             <button class="action-default" type="button" onclick="window.location.href='<?= $backUrl ?>'">

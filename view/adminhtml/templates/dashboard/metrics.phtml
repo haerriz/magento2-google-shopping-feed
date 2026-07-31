@@ -2,7 +2,16 @@
 /** @var \Haerriz\GoogleShoppingFeed\Block\Adminhtml\Dashboard\Metrics $block */
 $metrics = $block->getMetrics();
 ?>
-<div class="feed-dashboard">
+
+    <!-- SPIDER WEB CLUSTER NAVIGATION -->
+    <div class="feed-cluster-nav" style="background: #fff; padding: 10px 20px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ccc; display: flex; gap: 15px; align-items: center;">
+        <strong style="color: #666; margin-right: 10px;"><?= __("Module Quick Links:") ?></strong>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/dashboard/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #007bdb; color: #fff;"><?= __("Dashboard") ?></a>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/feed/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #f4f4f4; color: #333;"><?= __("Manage Profiles") ?></a>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/taxonomy/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #f4f4f4; color: #333;"><?= __("Taxonomy Mapper") ?></a>
+        <a href="<?= $block->getUrl("haerriz_googleshoppingfeed/job/index") ?>" style="text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #f4f4f4; color: #333;"><?= __("Job History") ?></a>
+    </div>
+    <div class="feed-dashboard">
     <div class="dashboard-header" style="margin-bottom: 20px;">
         <h2><?= __('Feed Health Overview (Last 30 Days)') ?></h2>
     </div>
