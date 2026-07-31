@@ -8,7 +8,6 @@ use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Response\Http\FileFactory;
 use Magento\Framework\Filesystem;
-use Magento\Framework\Exception\LocalizedException;
 
 class Download extends Action implements HttpGetActionInterface
 {
@@ -25,8 +24,8 @@ class Download extends Action implements HttpGetActionInterface
         FileFactory $fileFactory
     ) {
         parent::__construct($context);
-        $this->repository = $repository;
-        $this->filesystem = $filesystem;
+        $this->repository  = $repository;
+        $this->filesystem  = $filesystem;
         $this->fileFactory = $fileFactory;
     }
 
@@ -40,21 +39,22 @@ class Download extends Action implements HttpGetActionInterface
                 return $redirect->setPath('*/*/');
             }
 
-            $profile = $this->repository->getById($id);
-            $filename = basename((string)$profile->getFilename());
+            $profile  = $this->repository->getById($id);
+            $rawName  = basename((string)$profile->getFilename());
 
-            if (!$filename) {
-                $this->messageManager->addErrorMessage(__('The profile has an invalid filename.'));
+            if (!$rawName) {
+                $this->messageManager->addErrorMessage(__('Profile has an invalid filename.'));
                 return $redirect->setPath('*/*/');
             }
 
             $directoryRead = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA);
 
-            // Fast Path Resolution: Check direct media root, then subdirectories
+            // Candidate paths in order of preference (most recent first)
             $candidates = [
-                $filename,
-                'google_feed/profile_' . $profile->getId() . '/' . $filename,
-                'pub/media/' . $filename
+                $rawName,                                          // correct: media root
+                'google_feed/' . $rawName,                        // legacy subdirectory
+                'google_feed/profile_' . $id . '/' . $rawName,   // legacy profile subdir
+                'pub/media/' . $rawName,                          // accidental double-path (old bug)
             ];
 
             $resolvedPath = null;
@@ -66,26 +66,26 @@ class Download extends Action implements HttpGetActionInterface
             }
 
             if (!$resolvedPath) {
-                $this->messageManager->addNoticeMessage(
-                    __('Feed file "%1" is not yet generated. Click "Generate Now" or wait for scheduled cron to build it.', $filename)
-                );
+                $this->messageManager->addNoticeMessage(__(
+                    'Feed file "%1" has not been generated yet. Click "Generate Now" or wait for cron.',
+                    $rawName
+                ));
                 return $redirect->setPath('*/*/');
             }
 
-            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $ext = strtolower(pathinfo($rawName, PATHINFO_EXTENSION));
             $contentTypeMap = [
-                'xml' => 'application/xml',
-                'csv' => 'text/csv',
-                'txt' => 'text/plain',
-                'tsv' => 'text/tab-separated-values',
-                'jsonl' => 'application/x-ndjson',
-                'json' => 'application/json'
+                'xml'  => 'application/xml',
+                'csv'  => 'text/csv',
+                'txt'  => 'text/plain',
+                'tsv'  => 'text/tab-separated-values',
+                'jsonl'=> 'application/x-ndjson',
+                'json' => 'application/json',
             ];
             $contentType = $contentTypeMap[$ext] ?? 'application/octet-stream';
 
-            // Instant file download streaming without HTTP timeout
             return $this->fileFactory->create(
-                $filename,
+                $rawName,
                 ['type' => 'filename', 'value' => $resolvedPath, 'rm' => false],
                 DirectoryList::MEDIA,
                 $contentType

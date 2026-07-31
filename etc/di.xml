@@ -93,4 +93,33 @@
             </argument>
         </arguments>
     </type>
+
+    <!-- Product Type Strategy Pool: maps Magento product types to feed resolver strategies -->
+    <type name="Haerriz\GoogleShoppingFeed\Model\Product\Type\Pool">
+        <arguments>
+            <argument name="strategies" xsi:type="array">
+                <item name="simple" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Product\Type\Simple</item>
+                <item name="virtual" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Product\Type\VirtualProduct</item>
+                <item name="downloadable" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Product\Type\Downloadable</item>
+                <item name="configurable" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Product\Type\Configurable</item>
+                <item name="bundle" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Product\Type\Bundle</item>
+                <item name="grouped" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Product\Type\Grouped</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Modifier Pool: all text transformation modifiers -->
+    <type name="Haerriz\GoogleShoppingFeed\Model\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="strip_tags" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\StripTags</item>
+                <item name="round_price" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\RoundPrice</item>
+                <item name="append_text" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\AppendText</item>
+                <item name="prepend_text" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\PrependText</item>
+                <item name="capitalize" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\Capitalize</item>
+                <item name="google_taxonomy" xsi:type="object">Haerriz\GoogleShoppingFeed\Model\Modifier\GoogleTaxonomy</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>
