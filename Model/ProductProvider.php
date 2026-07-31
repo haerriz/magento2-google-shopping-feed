@@ -21,7 +21,19 @@ class ProductProvider implements ProductProviderInterface
         $afterEntityId = 0,
         $pageSize = 500
     ): Collection {
-        return $this->getProducts($profile);
+        $collection = $this->getProducts($profile);
+        
+        // Fix for infinite loop: Enforce pagination
+        if ($afterEntityId > 0) {
+            $collection->addFieldToFilter('entity_id', ['gt' => $afterEntityId]);
+        }
+        
+        // Always sort by entity_id ascending to ensure reliable batching
+        $collection->setOrder('entity_id', Collection::SORT_ORDER_ASC);
+        $collection->setPageSize($pageSize);
+        $collection->setCurPage(1); // Always page 1 since we filter by gt entity_id
+
+        return $collection;
     }
 
     public function getProducts(FeedProfileInterface $profile): Collection
