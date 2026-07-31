@@ -19,6 +19,24 @@
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedJobSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\Data\FeedLogSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
 
+    
+    <!-- Interface->Implementation preferences for all cluster connections -->
+    <preference for="Haerriz\GoogleShoppingFeed\Api\GenerationOrchestratorInterface" type="Haerriz\GoogleShoppingFeed\Model\Generation\Orchestrator" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\JobLoggerInterface" type="Haerriz\GoogleShoppingFeed\Model\FeedLogHandler" />
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedTemplateRegistryInterface" type="Haerriz\GoogleShoppingFeed\Model\Template\PresetRegistry" />
+
+    <!-- ProductEligibilityPolicy: wired into FeedExporter -->
+    <preference for="Haerriz\GoogleShoppingFeed\Api\ProductEligibilityPolicyInterface" type="Haerriz\GoogleShoppingFeed\Model\Product\EligibilityPolicy" />
+
+    <!-- OfferIdentityResolver: wired into ProductValueResolver -->
+    <preference for="Haerriz\GoogleShoppingFeed\Api\OfferIdentityResolverInterface" type="Haerriz\GoogleShoppingFeed\Model\Product\OfferIdentityResolver" />
+
+    <!-- TaxonomyRepository: wired into Taxonomy\Mapping for search() fallback -->
+    <preference for="Haerriz\GoogleShoppingFeed\Api\TaxonomyRepositoryInterface" type="Haerriz\GoogleShoppingFeed\Model\Taxonomy\Repository" />
+
+    <!-- Preset value object for FeedTemplateInterface -->
+    <preference for="Haerriz\GoogleShoppingFeed\Api\FeedTemplateInterface" type="Haerriz\GoogleShoppingFeed\Model\Template\Preset" />
+
     <preference for="Haerriz\GoogleShoppingFeed\Api\ModifierPipelineInterface" type="Haerriz\GoogleShoppingFeed\Model\Modifier\Pipeline" />
     <preference for="Haerriz\GoogleShoppingFeed\Api\WriterInterface" type="Haerriz\GoogleShoppingFeed\Model\Writer\GoogleXml" />
 

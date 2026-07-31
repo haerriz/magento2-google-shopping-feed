@@ -2,6 +2,7 @@
 namespace Haerriz\GoogleShoppingFeed\Model;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
+use Haerriz\GoogleShoppingFeed\Api\ProductEligibilityPolicyInterface;
 use Haerriz\GoogleShoppingFeed\Api\ProductProviderInterface;
 use Haerriz\GoogleShoppingFeed\Api\ProductTypeResolverInterface;
 use Haerriz\GoogleShoppingFeed\Model\Artifact\ArtifactManager;
@@ -29,6 +30,7 @@ class FeedExporter
     private $artifactManager;
     private $artifactPublisher;
     private $feedLogHandler;
+    private $eligibilityPolicy;
     private $logger;
 
     public function __construct(
@@ -43,6 +45,7 @@ class FeedExporter
         ArtifactManager $artifactManager,
         CurrentArtifactPublisher $artifactPublisher,
         FeedLogHandler $feedLogHandler,
+        ProductEligibilityPolicyInterface $eligibilityPolicy,
         LoggerInterface $logger
     ) {
         $this->filesystem          = $filesystem;
@@ -56,12 +59,12 @@ class FeedExporter
         $this->artifactManager     = $artifactManager;
         $this->artifactPublisher   = $artifactPublisher;
         $this->feedLogHandler      = $feedLogHandler;
+        $this->eligibilityPolicy   = $eligibilityPolicy;
         $this->logger              = $logger;
     }
 
     public function export(FeedProfileInterface $profile, $outputPath, FeedJob $job = null, $limit = null)
     {
-        // Strip any accidental pub/media prefix — Magento FS root is already pub/media/
         $outputPath = preg_replace('#^pub/media/#', '', ltrim((string)$outputPath, '/'));
 
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
@@ -73,35 +76,35 @@ class FeedExporter
         $mappingErrors = $this->rowBuilder->validate($profile);
 
         if ($mappingErrors) {
+            $this->feedLogHandler->log($job, 'error', 'Mapping validation failed: ' . implode('; ', $mappingErrors));
             throw new \InvalidArgumentException(implode(' ', $mappingErrors));
         }
 
-        $fields = array_map(static function (array $mapping) {
-            return (string)($mapping['google_attribute'] ?? $mapping['field'] ?? '');
-        }, $mappings);
+        $fields = array_map(static fn(array $m) => (string)($m['google_attribute'] ?? $m['field'] ?? ''), $mappings);
 
         if (!$fields || in_array('', $fields, true) || count($fields) !== count(array_unique($fields))) {
             throw new \InvalidArgumentException('Mappings require unique, non-empty output fields.');
         }
 
-        $writer            = $this->writerPool->get($profile->getFeedType());
-        $selectedColl      = $this->productProvider->getCollection($profile, $rule, 0, 1);
-        $selected          = (int)$selectedColl->getSize();
-        $processed = $exported = $skipped = $invalid = $warnings = 0;
-        $lastEntityId      = 0;
+        $writer       = $this->writerPool->get($profile->getFeedType());
+        $selectedColl = $this->productProvider->getCollection($profile, $rule, 0, 1);
+        $selected     = (int)$selectedColl->getSize();
+        $processed = $exported = $skipped = $invalid = $warnings = $ineligible = 0;
+        $lastEntityId = 0;
 
-        $this->feedLogHandler->log($job, 'info', "Starting export for profile [{$profile->getName()}]: selected={$selected}");
+        $this->feedLogHandler->log($job, 'info', "Export started for [{$profile->getName()}]: feed_type={$profile->getFeedType()}, selected={$selected}");
+        $this->logger->info("GoogleShoppingFeed: Export started [{$profile->getName()}] selected={$selected}");
 
         try {
             $stream = $directory->openFile($outputPath, 'w+');
             $stream->lock();
+            $this->feedLogHandler->log($job, 'debug', "Opened stream for: {$outputPath}");
             $writer->start($stream, $profile, $fields);
 
             while ($limit === null || $exported < $limit) {
-                $collection = $this->productProvider->getCollection(
-                    $profile, $rule, $lastEntityId, self::BATCH_SIZE
-                );
+                $collection = $this->productProvider->getCollection($profile, $rule, $lastEntityId, self::BATCH_SIZE);
                 if ($collection->count() === 0) {
+                    $this->feedLogHandler->log($job, 'debug', "No more products after entity_id={$lastEntityId}");
                     break;
                 }
 
@@ -111,8 +114,16 @@ class FeedExporter
                     $lastEntityId = (int)$product->getId();
                     $processed++;
 
+                    // EligibilityPolicy check — uses ProductEligibilityPolicy::isEligible()
+                    if (!$this->eligibilityPolicy->isEligible($product, $profile)) {
+                        $ineligible++;
+                        $this->feedLogHandler->log($job, 'debug', "Ineligible SKU [{$product->getSku()}] skipped by policy");
+                        continue;
+                    }
+
                     if ($rule && !$rule->getConditions()->validate($product)) {
                         $skipped++;
+                        $this->feedLogHandler->log($job, 'debug', "Rule-skipped SKU [{$product->getSku()}]");
                         continue;
                     }
 
@@ -126,7 +137,8 @@ class FeedExporter
                             $exported++;
                         } catch (\Exception $rowEx) {
                             $warnings++;
-                            $this->feedLogHandler->log($job, 'warning', "SKU [{$feedProduct->getSku()}]: {$rowEx->getMessage()}");
+                            $this->feedLogHandler->log($job, 'warning', "Row error SKU [{$feedProduct->getSku()}]: " . $rowEx->getMessage());
+                            $this->logger->warning("GoogleShoppingFeed: Row error [{$feedProduct->getSku()}]: " . $rowEx->getMessage());
                         }
                     }
                 }
@@ -136,6 +148,7 @@ class FeedExporter
             }
 
             $writer->finish($stream, $profile);
+            $this->feedLogHandler->log($job, 'info', "Writer finished. exported={$exported}, skipped={$skipped}, ineligible={$ineligible}");
 
         } finally {
             if ($stream) {
@@ -144,13 +157,11 @@ class FeedExporter
             }
         }
 
-        // Calculate file metrics
         $absolutePath = $directory->getAbsolutePath($outputPath);
         $fileSize     = file_exists($absolutePath) ? filesize($absolutePath) : 0;
         $checksum     = file_exists($absolutePath) ? hash_file('sha256', $absolutePath) : '';
         $duration     = round(microtime(true) - $startTime, 3);
 
-        // Update job with final metrics
         if ($job) {
             $job->setFileSize($fileSize);
             $job->setChecksum($checksum);
@@ -159,24 +170,25 @@ class FeedExporter
         }
         $this->updateJob($job, $selected, $processed, $exported, $skipped, $invalid, $warnings);
 
-        // Record artifact (immutable history)
+        // Record artifact — uses ArtifactManager::record()
         $this->artifactManager->record($profile, $absolutePath, $fileSize, $checksum, $exported);
 
-        // Publish current artifact pointer
+        // Publish artifact pointer — uses CurrentArtifactPublisher::publish()
         $this->artifactPublisher->publish($profile, $absolutePath);
 
-        // Deliver via configured adapter (Local/FTP/SFTP)
+        // Deliver via adapter — uses AdapterPool::deliver()
         try {
             $this->adapterPool->deliver($profile, $absolutePath);
+            $this->feedLogHandler->log($job, 'info', "Delivery completed via adapter [{$profile->getDeliveryType()}]");
         } catch (\Exception $deliveryEx) {
-            $this->logger->warning("Feed delivery failed for [{$profile->getName()}]: " . $deliveryEx->getMessage());
+            $this->logger->warning("GoogleShoppingFeed: Delivery failed [{$profile->getName()}]: " . $deliveryEx->getMessage());
             $this->feedLogHandler->log($job, 'warning', "Delivery failed: " . $deliveryEx->getMessage());
         }
 
-        $this->feedLogHandler->log($job, 'info', "Export complete: exported={$exported}, skipped={$skipped}, warnings={$warnings}, size={$fileSize}B, duration={$duration}s");
-        $this->logger->info("GoogleShoppingFeed [{$profile->getName()}]: exported={$exported} products to {$outputPath} ({$fileSize}B)");
+        $this->feedLogHandler->log($job, 'info', "Export complete: exported={$exported}, skipped={$skipped}, ineligible={$ineligible}, warnings={$warnings}, size={$fileSize}B, duration={$duration}s, sha256={$checksum}");
+        $this->logger->info("GoogleShoppingFeed [{$profile->getName()}]: exported={$exported} products, size={$fileSize}B, duration={$duration}s");
 
-        return compact('selected', 'processed', 'exported', 'skipped', 'invalid', 'warnings', 'fileSize', 'checksum', 'duration');
+        return compact('selected', 'processed', 'exported', 'skipped', 'ineligible', 'invalid', 'warnings', 'fileSize', 'checksum', 'duration');
     }
 
     private function createRule(FeedProfileInterface $profile)

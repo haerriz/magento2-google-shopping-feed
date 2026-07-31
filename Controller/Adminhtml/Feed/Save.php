@@ -1,6 +1,7 @@
 <?php
 namespace Haerriz\GoogleShoppingFeed\Controller\Adminhtml\Feed;
 
+use Haerriz\GoogleShoppingFeed\Api\CredentialProviderInterface;
 use Haerriz\GoogleShoppingFeed\Api\FeedProfileRepositoryInterface;
 use Haerriz\GoogleShoppingFeed\Model\ProfileValidator;
 use Magento\Backend\App\Action;
@@ -14,15 +15,18 @@ class Save extends Action implements HttpPostActionInterface
 
     private $repository;
     private $validator;
+    private $credentialProvider;
 
     public function __construct(
         Context $context,
         FeedProfileRepositoryInterface $repository,
-        ProfileValidator $validator
+        ProfileValidator $validator,
+        CredentialProviderInterface $credentialProvider
     ) {
         parent::__construct($context);
-        $this->repository = $repository;
-        $this->validator  = $validator;
+        $this->repository         = $repository;
+        $this->validator          = $validator;
+        $this->credentialProvider = $credentialProvider;
     }
 
     public function execute()
@@ -35,24 +39,26 @@ class Save extends Action implements HttpPostActionInterface
         }
 
         try {
-            $id = isset($data['profile_id']) ? (int)$data['profile_id'] : 0;
+            $id      = isset($data['profile_id']) ? (int)$data['profile_id'] : 0;
+            $profile = $id > 0
+                ? $this->repository->getById($id)
+                : $this->repository->create();
 
-            if ($id > 0) {
-                $profile = $this->repository->getById($id);
-            } else {
-                $profile = $this->repository->create();
-            }
-
-            // Map form fields to profile
-            foreach (['name', 'feed_type', 'store_id', 'filename', 'status', 'cron_expr',
-                      'delivery_type', 'ftp_host', 'ftp_port', 'ftp_user', 'ftp_password',
-                      'remote_path', 'attributes_mapping_serialized', 'conditions_serialized'] as $field) {
+            foreach (['name','feed_type','store_id','filename','status','cron_expr',
+                      'delivery_type','ftp_host','ftp_port','ftp_user',
+                      'remote_path','attributes_mapping_serialized','conditions_serialized'] as $field) {
                 if (array_key_exists($field, $data)) {
                     $profile->setData($field, $data[$field]);
                 }
             }
 
-            // Validate BEFORE saving
+            // FIX 23: CredentialProvider::encrypt() — encrypt FTP/SFTP password before saving
+            if (!empty($data['ftp_password']) && $data['ftp_password'] !== '******') {
+                $encrypted = $this->credentialProvider->encrypt($data['ftp_password']);
+                $profile->setData('ftp_password', $encrypted);
+            }
+
+            // ProfileValidator::validate() — validate before saving
             $errors = $this->validator->validate($profile);
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -67,15 +73,14 @@ class Save extends Action implements HttpPostActionInterface
             $this->repository->save($profile);
             $this->messageManager->addSuccessMessage(__('Feed profile "%1" saved successfully.', $profile->getName()));
 
-            if ($this->getRequest()->getParam('back') === 'edit') {
-                return $redirect->setPath('*/*/edit', ['id' => $profile->getId()]);
-            }
-            return $redirect->setPath('*/*/');
+            return $this->getRequest()->getParam('back') === 'edit'
+                ? $redirect->setPath('*/*/edit', ['id' => $profile->getId()])
+                : $redirect->setPath('*/*/');
 
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while saving: %1', $e->getMessage()));
+            $this->messageManager->addErrorMessage(__('Save failed: %1', $e->getMessage()));
         }
 
         return $redirect->setPath('*/*/');
