@@ -19,6 +19,19 @@ class ProfileValidator
     }
 
     /**
+     * Throw when profile configuration is invalid.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function assertValid(FeedProfileInterface $profile): void
+    {
+        $errors = $this->validate($profile);
+        if ($errors) {
+            throw new \InvalidArgumentException(implode(' ', $errors));
+        }
+    }
+
+    /**
      * Validate a profile's configuration. Returns array of error strings.
      * FIX 17: Uses RowValidatorInterface::validate() for per-row schema validation.
      */
