@@ -16,6 +16,13 @@
             <logging>
                 <debug>0</debug>
             </logging>
+            <alerts>
+                <enabled>0</enabled>
+                <threshold>3</threshold>
+                <email></email>
+                <slack_webhook_url></slack_webhook_url>
+                <delivery_webhook_url></delivery_webhook_url>
+            </alerts>
         </haerriz_googleshoppingfeed>
     </default>
 </config>

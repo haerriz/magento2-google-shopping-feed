@@ -31,6 +31,33 @@
                 </field>
             </group>
 
+            <group id="alerts" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Health Alerts</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Failure Alerts</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send alerts when a profile reaches the consecutive failure threshold.</comment>
+                </field>
+                <field id="threshold" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Consecutive Failure Threshold</label>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                    <comment>Alert after this many consecutive failed runs (default 3).</comment>
+                </field>
+                <field id="email" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Alert Email</label>
+                    <validate>validate-email</validate>
+                    <comment>Recipient for failure alert emails.</comment>
+                </field>
+                <field id="slack_webhook_url" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Slack / Webhook URL</label>
+                    <comment>Optional HTTPS webhook endpoint for failure alerts (Slack incoming webhook supported).</comment>
+                </field>
+                <field id="delivery_webhook_url" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Delivery Webhook URL</label>
+                    <comment>Optional global HTTPS webhook called after successful feed delivery. Profiles may override via webhook_url.</comment>
+                </field>
+            </group>
+
             <group id="google_merchant_api" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Google Merchant Center API Settings (Direct Content API Integration)</label>
                 <field id="merchant_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

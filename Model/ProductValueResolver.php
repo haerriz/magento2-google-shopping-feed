@@ -5,6 +5,7 @@ use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
 use Haerriz\GoogleShoppingFeed\Api\OfferIdentityResolverInterface;
 use Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface;
 use Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder;
+use Magento\Catalog\Helper\Data as CatalogHelper;
 use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Store\Model\StoreManagerInterface;
@@ -17,6 +18,8 @@ class ProductValueResolver implements ProductValueResolverInterface
     private OfferIdentityResolverInterface $offerIdentityResolver;
     private UtmBuilder $utmBuilder;
     private CategoryIdResolver $categoryIdResolver;
+    private CatalogHelper $catalogHelper;
+    private ProfileConfigReader $configReader;
     private LoggerInterface $logger;
 
     public function __construct(
@@ -25,6 +28,8 @@ class ProductValueResolver implements ProductValueResolverInterface
         OfferIdentityResolverInterface $offerIdentityResolver,
         UtmBuilder $utmBuilder,
         CategoryIdResolver $categoryIdResolver,
+        CatalogHelper $catalogHelper,
+        ProfileConfigReader $configReader,
         LoggerInterface $logger
     ) {
         $this->imageHelper = $imageHelper;
@@ -32,6 +37,8 @@ class ProductValueResolver implements ProductValueResolverInterface
         $this->offerIdentityResolver = $offerIdentityResolver;
         $this->utmBuilder = $utmBuilder;
         $this->categoryIdResolver = $categoryIdResolver;
+        $this->catalogHelper = $catalogHelper;
+        $this->configReader = $configReader;
         $this->logger = $logger;
     }
 
@@ -86,7 +93,15 @@ class ProductValueResolver implements ProductValueResolverInterface
                 }
 
             case 'item_group_id':
-                return (string)($product->getData('item_group_id') ?: $product->getData('parent_sku') ?: '');
+                return (string)($product->getData('item_group_id')
+                    ?: $product->getData('parent_sku')
+                    ?: '');
+
+            case 'color':
+                return $this->resolveOptionAttribute($product, 'color');
+
+            case 'size':
+                return $this->resolveOptionAttribute($product, 'size');
 
             case 'quantity_and_stock_status':
             case 'availability':
@@ -113,19 +128,7 @@ class ProductValueResolver implements ProductValueResolverInterface
                 }
 
             case 'price':
-                $currency = $this->resolveCurrency($product, $profile);
-                $specialPrice = (float)$product->getSpecialPrice();
-                if ($specialPrice > 0) {
-                    $from = $product->getSpecialFromDate();
-                    $to = $product->getSpecialToDate();
-                    $now = date('Y-m-d');
-                    $valid = (!$from || $now >= substr((string)$from, 0, 10))
-                        && (!$to || $now <= substr((string)$to, 0, 10));
-                    if ($valid) {
-                        return number_format($specialPrice, 2, '.', '') . ' ' . $currency;
-                    }
-                }
-                return number_format((float)$product->getFinalPrice(), 2, '.', '') . ' ' . $currency;
+                return $this->resolvePrice($product, $profile);
 
             case 'currency':
                 return $this->resolveCurrency($product, $profile);
@@ -143,6 +146,76 @@ class ProductValueResolver implements ProductValueResolverInterface
                 }
                 return (string)($value ?? '');
         }
+    }
+
+    private function resolvePrice(Product $product, FeedProfileInterface $profile): string
+    {
+        $currency = $this->resolveCurrency($product, $profile);
+        $price = $this->getBasePrice($product);
+
+        $includeTax = $this->shouldIncludeTax($profile);
+        if ($includeTax) {
+            try {
+                $store = $this->storeManager->getStore((int)($profile->getStoreId() ?: $product->getStoreId()));
+                $price = (float)$this->catalogHelper->getTaxPrice($product, $price, true, null, null, null, $store, null, true);
+            } catch (\Throwable $e) {
+                $this->logger->debug('Tax price resolve failed: ' . $e->getMessage());
+            }
+        }
+
+        return number_format($price, 2, '.', '') . ' ' . $currency;
+    }
+
+    private function getBasePrice(Product $product): float
+    {
+        $specialPrice = (float)$product->getSpecialPrice();
+        if ($specialPrice > 0) {
+            $from = $product->getSpecialFromDate();
+            $to = $product->getSpecialToDate();
+            $now = date('Y-m-d');
+            $valid = (!$from || $now >= substr((string)$from, 0, 10))
+                && (!$to || $now <= substr((string)$to, 0, 10));
+            if ($valid) {
+                return $specialPrice;
+            }
+        }
+
+        return (float)$product->getFinalPrice();
+    }
+
+    private function shouldIncludeTax(FeedProfileInterface $profile): bool
+    {
+        if ($profile->getData('price_includes_tax') !== null && $profile->getData('price_includes_tax') !== '') {
+            return (bool)$profile->getData('price_includes_tax');
+        }
+        if ($profile->getData('include_tax') !== null && $profile->getData('include_tax') !== '') {
+            return (bool)$profile->getData('include_tax');
+        }
+
+        return $this->configReader->getBoolean($profile, 'include_tax', false)
+            || $this->configReader->getBoolean($profile, 'price_includes_tax', false);
+    }
+
+    private function resolveOptionAttribute(Product $product, string $code): string
+    {
+        $value = $product->getData($code);
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        try {
+            $text = $product->getAttributeText($code);
+            if (is_array($text)) {
+                return implode(', ', $text);
+            }
+            if ($text !== false && $text !== null && $text !== '') {
+                return (string)$text;
+            }
+        } catch (\Throwable $e) {
+            // fall through to raw value
+        }
+
+        return is_array($value) ? implode(', ', $value) : (string)$value;
     }
 
     private function resolveCurrency(Product $product, FeedProfileInterface $profile): string

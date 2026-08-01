@@ -47,10 +47,10 @@ class StatusReconciliation
                 $status = $remoteProduct['status']    ?? 'unknown';
                 $issues = $remoteProduct['itemLevelIssues'] ?? [];
 
-                // Persist to local state table
+                // Persist to local state table (profile_id=0 = merchant-account level snapshot)
                 try {
-                    $state = $this->remoteStateRepo->getByOfferIdAndProfile($sku, $merchantId);
-                    $state->setRemoteStatus($status);
+                    $state = $this->remoteStateRepo->getByOfferIdAndProfile($sku, 0);
+                    $state->setRemoteStatus((string)$status);
                     $state->setIssues(json_encode($issues));
                     $state->setSyncedAt(date('Y-m-d H:i:s'));
                     $this->remoteStateRepo->save($state);

@@ -133,6 +133,8 @@
         <column xsi:type="varchar" name="offer_id" nullable="false" length="128" comment="Merchant Offer ID"/>
         <column xsi:type="varchar" name="sync_status" nullable="false" length="32" default="synced" comment="Sync Status"/>
         <column xsi:type="varchar" name="payload_hash" nullable="true" length="64" comment="Payload Hash"/>
+        <column xsi:type="text" name="issues" nullable="true" comment="Merchant Item Issues JSON"/>
+        <column xsi:type="timestamp" name="synced_at" on_update="false" nullable="true" comment="Last Merchant Sync Time"/>
         <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Update Time"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="state_id"/>

@@ -11,7 +11,13 @@ define([
             isLoading: ko.observable(false),
             hasError: ko.observable(false),
             errorMessage: ko.observable(''),
-            previewContent: ko.observable('')
+            previewContent: ko.observable(''),
+            rowCount: ko.observable(0),
+            format: ko.observable(''),
+            channel: ko.observable(''),
+            fieldErrors: ko.observableArray([]),
+            completenessScore: ko.observable(0),
+            dryRunChanged: ko.observable(false)
         },
 
         initialize: function () {
@@ -59,6 +65,10 @@ define([
             if (window.FORM_KEY) {
                 formData.push({name: 'form_key', value: window.FORM_KEY});
             }
+            formData.push({
+                name: 'dry_run_changed',
+                value: self.dryRunChanged() ? '1' : '0'
+            });
 
             var $modalElement = $('#feed-preview-modal');
             if (!$modalElement.hasClass('ui-dialog-content')) {
@@ -66,6 +76,12 @@ define([
                     type: 'slide',
                     title: 'Live Feed Preview',
                     buttons: [{
+                        text: 'Refresh',
+                        class: 'action-primary',
+                        click: function () {
+                            self.openPreview();
+                        }
+                    }, {
                         text: 'Close',
                         class: 'action-secondary',
                         click: function () {
@@ -79,6 +95,11 @@ define([
             self.isLoading(true);
             self.hasError(false);
             self.previewContent('');
+            self.fieldErrors([]);
+            self.rowCount(0);
+            self.format('');
+            self.channel('');
+            self.completenessScore(0);
 
             $.ajax({
                 url: this.previewUrl,
@@ -89,6 +110,12 @@ define([
                     self.isLoading(false);
                     if (res && res.success) {
                         self.previewContent(res.content || 'No products found or exported.');
+                        self.rowCount(res.row_count || 0);
+                        self.format(res.format || '');
+                        self.channel(res.channel || '');
+                        self.fieldErrors(Array.isArray(res.field_errors) ? res.field_errors : []);
+                        var completeness = res.completeness || {};
+                        self.completenessScore(completeness.score != null ? completeness.score : 0);
                     } else {
                         self.hasError(true);
                         self.errorMessage((res && res.message) || 'Unknown error occurred.');

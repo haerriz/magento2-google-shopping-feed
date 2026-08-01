@@ -45,6 +45,7 @@ class PreviewAjax extends Action implements HttpPostActionInterface
         try {
             $profile = $this->profileFactory->create();
             $fields = [
+                'profile_id',
                 'name',
                 'feed_type',
                 'store_id',
@@ -54,11 +55,21 @@ class PreviewAjax extends Action implements HttpPostActionInterface
                 'attributes_mapping_serialized',
                 'conditions_serialized',
                 'delivery_type',
+                'price_includes_tax',
+                'include_tax',
+                'webhook_url',
             ];
             foreach ($fields as $field) {
                 if (array_key_exists($field, $data)) {
                     $profile->setData($field, $data[$field]);
                 }
+            }
+
+            if (!empty($data['entity_id']) && !$profile->getId()) {
+                $profile->setId((int)$data['entity_id']);
+            }
+            if (!empty($data['profile_id']) && !$profile->getId()) {
+                $profile->setId((int)$data['profile_id']);
             }
 
             if (!$profile->getFeedType()) {
@@ -71,7 +82,10 @@ class PreviewAjax extends Action implements HttpPostActionInterface
                 $profile->setDeliveryType('local');
             }
 
-            $preview = $this->previewService->preview($profile, 5);
+            $dryRunChanged = (string)$this->getRequest()->getParam('dry_run_changed', $data['dry_run_changed'] ?? '0') === '1';
+            $preview = $this->previewService->preview($profile, 5, [
+                'dry_run_changed' => $dryRunChanged,
+            ]);
 
             return $result->setData([
                 'success' => true,
@@ -79,7 +93,12 @@ class PreviewAjax extends Action implements HttpPostActionInterface
                     ? $preview['content']
                     : 'No products found for the current mapping/filters.',
                 'counts' => $preview['counts'] ?? [],
-                'format' => $preview['format'] ?? $profile->getFeedType(),
+                'row_count' => $preview['row_count'] ?? 0,
+                'format' => $preview['format'] ?? 'xml',
+                'channel' => $preview['channel'] ?? $profile->getFeedType(),
+                'field_errors' => $preview['field_errors'] ?? [],
+                'completeness' => $preview['completeness'] ?? [],
+                'dry_run_changed' => $dryRunChanged,
             ]);
         } catch (\Throwable $e) {
             return $result->setHttpResponseCode(500)->setData([
