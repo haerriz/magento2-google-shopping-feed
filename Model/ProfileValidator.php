@@ -41,7 +41,7 @@ class ProfileValidator
             $errors[] = __('Filename must end in .xml, .csv, .jsonl, .txt, or .tsv.')->render();
         }
 
-        $cronExpr = trim((string)$profile->getCronExpr());
+        $cronExpr = trim((string)($profile->getCronExpression() ?: $profile->getData('cron_expr')));
         if ($cronExpr && !$this->isValidCronExpr($cronExpr)) {
             $errors[] = __('Invalid cron expression: "%1"', $cronExpr)->render();
         }

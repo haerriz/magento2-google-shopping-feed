@@ -3,12 +3,19 @@
     <default>
         <haerriz_googleshoppingfeed>
             <general>
-                <enabled>0</enabled>
+                <enable>0</enable>
+                <cli_php_path></cli_php_path>
             </general>
-            <api>
+            <google_merchant_api>
                 <merchant_id></merchant_id>
                 <service_account_json></service_account_json>
-            </api>
+                <target_country></target_country>
+                <target_currency></target_currency>
+                <api_mode>production</api_mode>
+            </google_merchant_api>
+            <logging>
+                <debug>0</debug>
+            </logging>
         </haerriz_googleshoppingfeed>
     </default>
 </config>

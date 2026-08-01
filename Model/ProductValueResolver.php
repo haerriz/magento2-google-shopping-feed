@@ -3,21 +3,21 @@ namespace Haerriz\GoogleShoppingFeed\Model;
 
 use Haerriz\GoogleShoppingFeed\Api\Data\FeedProfileInterface;
 use Haerriz\GoogleShoppingFeed\Api\OfferIdentityResolverInterface;
-use Haerriz\GoogleShoppingFeed\Model\CategoryIdResolver;
+use Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface;
 use Haerriz\GoogleShoppingFeed\Model\Url\UtmBuilder;
-use Magento\Catalog\Model\Product;
 use Magento\Catalog\Helper\Image as ImageHelper;
+use Magento\Catalog\Model\Product;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductValueResolverInterface
+class ProductValueResolver implements ProductValueResolverInterface
 {
-    private $imageHelper;
-    private $storeManager;
-    private $offerIdentityResolver;
-    private $utmBuilder;
-    private $categoryIdResolver;
-    private $logger;
+    private ImageHelper $imageHelper;
+    private StoreManagerInterface $storeManager;
+    private OfferIdentityResolverInterface $offerIdentityResolver;
+    private UtmBuilder $utmBuilder;
+    private CategoryIdResolver $categoryIdResolver;
+    private LoggerInterface $logger;
 
     public function __construct(
         ImageHelper $imageHelper,
@@ -27,12 +27,12 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
         CategoryIdResolver $categoryIdResolver,
         LoggerInterface $logger
     ) {
-        $this->imageHelper           = $imageHelper;
-        $this->storeManager          = $storeManager;
+        $this->imageHelper = $imageHelper;
+        $this->storeManager = $storeManager;
         $this->offerIdentityResolver = $offerIdentityResolver;
-        $this->utmBuilder            = $utmBuilder;
-        $this->categoryIdResolver    = $categoryIdResolver;
-        $this->logger                = $logger;
+        $this->utmBuilder = $utmBuilder;
+        $this->categoryIdResolver = $categoryIdResolver;
+        $this->logger = $logger;
     }
 
     public function resolve(array $mapping, Product $product, FeedProfileInterface $profile)
@@ -48,8 +48,6 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
         }
 
         switch ($attributeCode) {
-
-            // FIX 2: OfferIdentityResolver::resolve() — used for offer ID / SKU
             case 'sku':
             case 'offer_id':
                 try {
@@ -59,7 +57,6 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
                     return (string)$product->getSku();
                 }
 
-            // FIX 3: UtmBuilder::build() — used for product URLs with UTM tracking
             case 'product_url':
                 try {
                     $url = $product->setStoreId((int)$profile->getStoreId())->getProductUrl();
@@ -80,7 +77,6 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
                     return '';
                 }
 
-            // FIX 4: CategoryIdResolver::resolve() — resolve google_product_category from categories
             case 'google_product_category':
                 try {
                     return $this->categoryIdResolver->resolve($product);
@@ -88,6 +84,9 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
                     $this->logger->debug("CategoryIdResolver failed for [{$product->getSku()}]: " . $e->getMessage());
                     return '';
                 }
+
+            case 'item_group_id':
+                return (string)($product->getData('item_group_id') ?: $product->getData('parent_sku') ?: '');
 
             case 'quantity_and_stock_status':
             case 'availability':
@@ -98,7 +97,9 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
                     if ($stockItem && $stockItem->getIsInStock()) {
                         return 'in stock';
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                    // fall through
+                }
                 return 'out of stock';
 
             case 'quantity':
@@ -112,36 +113,51 @@ class ProductValueResolver implements \Haerriz\GoogleShoppingFeed\Api\ProductVal
                 }
 
             case 'price':
+                $currency = $this->resolveCurrency($product, $profile);
                 $specialPrice = (float)$product->getSpecialPrice();
                 if ($specialPrice > 0) {
-                    $from  = $product->getSpecialFromDate();
-                    $to    = $product->getSpecialToDate();
-                    $now   = date('Y-m-d');
-                    $valid = (!$from || $now >= substr($from, 0, 10))
-                          && (!$to   || $now <= substr($to, 0, 10));
+                    $from = $product->getSpecialFromDate();
+                    $to = $product->getSpecialToDate();
+                    $now = date('Y-m-d');
+                    $valid = (!$from || $now >= substr((string)$from, 0, 10))
+                        && (!$to || $now <= substr((string)$to, 0, 10));
                     if ($valid) {
-                        return number_format($specialPrice, 2, '.', '') . ' INR';
+                        return number_format($specialPrice, 2, '.', '') . ' ' . $currency;
                     }
                 }
-                return number_format((float)$product->getPrice(), 2, '.', '') . ' INR';
+                return number_format((float)$product->getFinalPrice(), 2, '.', '') . ' ' . $currency;
 
             case 'currency':
-                try {
-                    return $this->storeManager->getStore((int)$profile->getStoreId())->getCurrentCurrencyCode();
-                } catch (\Exception $e) {
-                    return 'INR';
-                }
+                return $this->resolveCurrency($product, $profile);
 
             default:
                 $value = $product->getData($attributeCode);
-                if ($value === null && method_exists($product, 'get' . str_replace('_', '', ucwords($attributeCode, '_')))) {
+                if ($value === null) {
                     $getter = 'get' . str_replace('_', '', ucwords($attributeCode, '_'));
-                    $value  = $product->$getter();
+                    if (method_exists($product, $getter)) {
+                        $value = $product->$getter();
+                    }
                 }
                 if (is_array($value)) {
                     return implode(', ', $value);
                 }
                 return (string)($value ?? '');
+        }
+    }
+
+    private function resolveCurrency(Product $product, FeedProfileInterface $profile): string
+    {
+        $currency = trim((string)$profile->getCurrency());
+        if ($currency !== '') {
+            return strtoupper($currency);
+        }
+
+        try {
+            $storeId = (int)($profile->getStoreId() ?: $product->getStoreId());
+            return (string)$this->storeManager->getStore($storeId)->getCurrentCurrencyCode();
+        } catch (\Exception $e) {
+            $this->logger->debug('Currency resolve failed: ' . $e->getMessage());
+            return 'USD';
         }
     }
 }

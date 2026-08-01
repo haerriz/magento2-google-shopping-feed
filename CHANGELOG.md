@@ -2,6 +2,26 @@
 
 All notable changes to the `Haerriz_GoogleShoppingFeed` Magento 2 module are documented here.
 
+## [2.2.0] - 2026-08-01
+
+### Fixed (Security & Correctness Audit)
+- **SSRF hardening**: Implemented real private/loopback/link-local/reserved IP blocking in `RemoteHostValidator` (with `validate()` + `isValid()` APIs).
+- **CredentialProvider completeness**: Implemented `encrypt()`, `decrypt()`, and `getConfigSecret()` required by SFTP/FTP/Save flows.
+- **Currency bug**: Removed hardcoded `INR` from `ProductValueResolver`; price currency now comes from profile/store.
+- **Config path mismatch**: Aligned `etc/config.xml` and `Model\Config` paths with `system.xml` (`general/enable`, `google_merchant_api/*`).
+- **Save controller mapping**: Canonical `delivery_*` fields + legacy `ftp_*` aliases; encrypts delivery passwords; escapes success message HTML.
+- **ConnectionTester**: Uses delivery host/user/password fields and host validator before opening sockets.
+- **Cron accessors**: Added `getCronExpr()`/`setCronExpr()` aliases and dual-column support for `cron_expr` / `cron_expression`.
+- **Profile clone safety**: Scrubs secrets and resets lock/retry/next-run runtime state.
+- **SystemInfo**: Safe handling when `get_current_user()` is unavailable; shows PHP version.
+
+### Improved
+- **Product type strategies**: Configurable/Grouped expand to enabled children; Simple/Virtual/Downloadable/Bundle return sellable offers with metadata.
+- **ProductTypeResolver**: Uses type strategy pool and filters disabled products.
+- **Sensitive field registry**: Includes delivery private key/passphrase and service account JSON.
+- **Admin config**: Added logging/debug toggle group.
+- **Docs/tests**: Rewrote README install/security docs; updated unit tests for Save, ProductTypeResolver, and FeedProfileCloner.
+
 ## [2.6.0] - 2026-07-31
 
 ### Fixed (P0 Security & Correctness Audit)
