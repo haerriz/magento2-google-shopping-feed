@@ -128,8 +128,8 @@
 
     <table name="haerriz_google_shopping_feed_remote_state" resource="default" engine="innodb" comment="Merchant API Remote Synchronization State">
         <column xsi:type="int" name="state_id" padding="10" unsigned="true" nullable="false" identity="true" comment="State ID"/>
-        <column xsi:type="int" name="profile_id" padding="10" unsigned="true" nullable="false" comment="Profile ID"/>
-        <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="int" name="profile_id" padding="10" unsigned="true" nullable="true" comment="Profile ID"/>
+        <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" default="0" comment="Product ID"/>
         <column xsi:type="varchar" name="offer_id" nullable="false" length="128" comment="Merchant Offer ID"/>
         <column xsi:type="varchar" name="sync_status" nullable="false" length="32" default="synced" comment="Sync Status"/>
         <column xsi:type="varchar" name="payload_hash" nullable="true" length="64" comment="Payload Hash"/>
@@ -139,7 +139,10 @@
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="state_id"/>
         </constraint>
-        <constraint xsi:type="foreign" referenceId="HAERRIZ_GSF_REMOTE_PROFILE_ID" table="haerriz_google_shopping_feed_remote_state" column="profile_id" referenceTable="haerriz_google_shopping_feed_profile" referenceColumn="profile_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="HAERRIZ_GSF_REMOTE_PROFILE_ID" table="haerriz_google_shopping_feed_remote_state" column="profile_id" referenceTable="haerriz_google_shopping_feed_profile" referenceColumn="profile_id" onDelete="SET NULL"/>
+        <index referenceId="HAERRIZ_GSF_REMOTE_OFFER_ID" indexType="btree">
+            <column name="offer_id"/>
+        </index>
     </table>
 
     <table name="haerriz_google_shopping_feed_taxonomy" resource="default" engine="innodb" comment="Imported Google Taxonomy Categories">

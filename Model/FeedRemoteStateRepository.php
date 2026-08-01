@@ -38,11 +38,15 @@ class FeedRemoteStateRepository implements FeedRemoteStateRepositoryInterface
         return $state;
     }
 
-    public function getByOfferIdAndProfile(string $offerId, $profileId): FeedRemoteStateInterface
+    public function getByOfferIdAndProfile(string $offerId, $profileId = null): FeedRemoteStateInterface
     {
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter('offer_id', $offerId);
-        $collection->addFieldToFilter('profile_id', (int)$profileId);
+        if ($profileId === null || $profileId === '') {
+            $collection->addFieldToFilter('profile_id', ['null' => true]);
+        } else {
+            $collection->addFieldToFilter('profile_id', (int)$profileId);
+        }
         $collection->setPageSize(1);
 
         $item = $collection->getFirstItem();
@@ -53,7 +57,11 @@ class FeedRemoteStateRepository implements FeedRemoteStateRepositoryInterface
         /** @var FeedRemoteStateInterface $state */
         $state = $this->stateFactory->create();
         $state->setOfferId($offerId);
-        $state->setProfileId((int)$profileId);
+        if ($profileId !== null && $profileId !== '') {
+            $state->setProfileId((int)$profileId);
+        } else {
+            $state->setProfileId(null);
+        }
         $state->setProductId(0);
         $state->setSyncStatus('unknown');
 
